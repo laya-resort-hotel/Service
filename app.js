@@ -114,7 +114,12 @@ form.addEventListener('submit', async (event) => {
     redirectToDepartmentsWithDelay();
   } catch (error) {
     console.error(error);
-    showStatus('เกิดข้อผิดพลาดในการดึงข้อมูลจากระบบ Check-in กรุณาลองใหม่อีกครั้ง', 'error');
+    const message = String(error?.message || error || '');
+    if (/permission|missing or insufficient permissions/i.test(message)) {
+      showStatus('ระบบเชื่อม Firebase ได้ แต่ไม่มีสิทธิ์อ่าน guest_daily กรุณาเปิด Anonymous Auth และอนุญาตให้อ่าน collection guest_daily', 'error');
+    } else {
+      showStatus(`เกิดข้อผิดพลาดในการดึงข้อมูลจากระบบ Check-in: ${message || 'กรุณาลองใหม่อีกครั้ง'}`, 'error');
+    }
   } finally {
     setSubmitting(false);
   }
@@ -127,25 +132,58 @@ async function ensureAnonymousAuth() {
 }
 
 async function findGuestDailyRecordByRoom(roomNo) {
-  const roomFields = ['room', 'room_no', 'roomNo', 'roomNormalized', 'roomNoNormalized'];
+  const roomFields = ['room', 'room_no', 'roomNo', 'roomNormalized', 'roomNoNormalized', 'Room'];
+  const roomVariants = buildRoomVariants(roomNo);
   const results = new Map();
+  let hadPermissionError = false;
 
   for (const fieldName of roomFields) {
+    for (const roomVariant of roomVariants) {
+      try {
+        const roomQuery = query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', roomVariant), limit(20));
+        const snapshot = await getDocs(roomQuery);
+        snapshot.forEach((docSnap) => {
+          if (!results.has(docSnap.id)) {
+            results.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+          }
+        });
+      } catch (error) {
+        console.warn(`Room lookup failed for field ${fieldName}:`, error);
+        if (/permission|missing or insufficient permissions/i.test(String(error?.message || error || ''))) {
+          hadPermissionError = true;
+        }
+      }
+    }
+  }
+
+  if (!results.size) {
+    // Fallback: scan a reasonable slice of guest_daily and normalize room client-side.
     try {
-      const roomQuery = query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', roomNo), limit(10));
-      const snapshot = await getDocs(roomQuery);
-      snapshot.forEach((docSnap) => {
-        if (!results.has(docSnap.id)) {
-          results.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+      const fallbackSnapshot = await getDocs(query(collection(db, GUEST_DAILY_COLLECTION), limit(800)));
+      fallbackSnapshot.forEach((docSnap) => {
+        const data = { id: docSnap.id, ...docSnap.data() };
+        const docRoom = extractRoomNo(data);
+        if (docRoom && buildRoomVariants(docRoom).includes(roomNo)) {
+          if (!results.has(docSnap.id)) {
+            results.set(docSnap.id, data);
+          }
         }
       });
     } catch (error) {
-      console.warn(`Room lookup failed for field ${fieldName}:`, error);
+      console.warn('Fallback guest_daily scan failed:', error);
+      if (/permission|missing or insufficient permissions/i.test(String(error?.message || error || ''))) {
+        hadPermissionError = true;
+      }
     }
   }
 
   const docs = Array.from(results.values());
-  if (!docs.length) return null;
+  if (!docs.length) {
+    if (hadPermissionError) {
+      throw new Error('permission_denied_guest_daily');
+    }
+    return null;
+  }
 
   const bangkokToday = getBangkokDateKey();
   const scored = docs
@@ -153,6 +191,32 @@ async function findGuestDailyRecordByRoom(roomNo) {
     .sort((a, b) => b.score - a.score);
 
   return scored[0].doc;
+}
+
+function buildRoomVariants(roomNo) {
+  const normalized = normalizeRoomNo(roomNo);
+  const compact = normalized.replace(/\s+/g, '');
+  const withSpace = compact.replace(/^([ABCD])(\d+)$/, '$1 $2');
+  const noLeadingZeros = compact.replace(/^([ABCD])0+(\d+)$/, '$1$2');
+
+  return Array.from(new Set([
+    normalized,
+    compact,
+    compact.toLowerCase(),
+    withSpace,
+    noLeadingZeros,
+  ].filter(Boolean)));
+}
+
+function extractRoomNo(doc) {
+  return firstNonEmpty([
+    doc.room,
+    doc.room_no,
+    doc.roomNo,
+    doc.roomNormalized,
+    doc.roomNoNormalized,
+    doc.Room,
+  ]);
 }
 
 function buildGuestSessionPayload(roomNo, guestRecord) {
