@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Reward Queue</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="eyebrow">Laya Adventure Admin</div>
+        <h1>Reward Queue</h1>
+        <p>ดูรายการ pending, approved, fulfilled, expired และ rejected ในจอเดียว พร้อมเปิดดูรายละเอียดและจัดการต่อได้ทันทีจาก modal เดียว</p>
+      </section>
+
+      <section class="grid stats-grid">
+        <article class="stat-card"><div class="stat-label">Pending</div><div id="stat-pending" class="stat-value">0</div><div class="stat-note">รออนุมัติ</div></article>
+        <article class="stat-card"><div class="stat-label">Approved</div><div id="stat-approved" class="stat-value">0</div><div class="stat-note">อนุมัติแล้ว รอ pickup</div></article>
+        <article class="stat-card"><div class="stat-label">Fulfilled</div><div id="stat-fulfilled" class="stat-value">0</div><div class="stat-note">มอบของจริงแล้ว</div></article>
+        <article class="stat-card"><div class="stat-label">Expired</div><div id="stat-expired" class="stat-value">0</div><div class="stat-note">pickup token หมดอายุ</div></article>
+        <article class="stat-card"><div class="stat-label">Rejected</div><div id="stat-rejected" class="stat-value">0</div><div class="stat-note">คำขอที่ถูกปฏิเสธ</div></article>
+      </section>
+
+      <section class="card toolbar-card">
+        <div class="toolbar-grid">
+          <div>
+            <label class="label" for="queue-search">Search</label>
+            <input id="queue-search" placeholder="ค้นหา guest UID, room, reward, request ID, redemption ID, pickup code" />
+          </div>
+          <div>
+            <label class="label" for="status-filter">Status</label>
+            <select id="status-filter">
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="fulfilled">Fulfilled</option>
+              <option value="expired">Expired</option>
+              <option value="rejected">Show rejected</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="limit-filter">Rows per status</label>
+            <select id="limit-filter">
+              <option value="20">20</option>
+              <option value="40" selected>40</option>
+              <option value="60">60</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="date-from">Date from</label>
+            <input id="date-from" type="date" />
+          </div>
+          <div>
+            <label class="label" for="date-to">Date to</label>
+            <input id="date-to" type="date" />
+          </div>
+        </div>
+
+        <div class="preset-row">
+          <span class="label preset-label">Quick presets</span>
+          <div class="preset-buttons">
+            <button type="button" class="secondary preset-btn" data-preset-range="today">Today</button>
+            <button type="button" class="secondary preset-btn" data-preset-range="yesterday">Yesterday</button>
+            <button type="button" class="secondary preset-btn" data-preset-range="last7">Last 7 Days</button>
+            <button type="button" class="secondary preset-btn" data-preset-range="thisMonth">This Month</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="refresh-btn">Refresh Queue</button>
+          <button id="export-btn">Export CSV</button>
+          <button id="clear-btn" class="secondary">Clear Filters</button>
+        </div>
+
+        <div id="queue-status" class="status" style="margin-top: 14px;">รอโหลดข้อมูล...</div>
+      </section>
+
+      <section class="card">
+        <div class="section-head">
+          <div>
+            <h2>Queue Overview</h2>
+            <div class="muted small">กด View detail เพื่อเปิด modal รายละเอียดและสั่ง action ต่อได้ทันที</div>
+          </div>
+          <div class="badge"><span id="visible-count">0</span> visible rows</div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="queue-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Guest</th>
+                <th>Room</th>
+                <th>Reward</th>
+                <th>Request ID</th>
+                <th>Redemption ID</th>
+                <th>Pickup Code</th>
+                <th>Updated</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="queue-body">
+              <tr><td colspan="9" class="empty-cell">ยังไม่มีข้อมูล</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="detail-modal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal="1"></div>
+      <aside class="modal-panel">
+        <div class="modal-header">
+          <div>
+            <div class="eyebrow">Reward Detail</div>
+            <h2 id="detail-title">Reward Detail</h2>
+            <div id="detail-subtitle" class="muted small">เลือกแถวจาก queue เพื่อดูรายละเอียด</div>
+          </div>
+          <button id="close-modal-btn" class="icon-btn" aria-label="Close">✕</button>
+        </div>
+
+        <div id="detail-status" class="status">ยังไม่มีข้อมูลรายละเอียด</div>
+
+        <div class="detail-actions">
+          <button id="approve-request-btn" class="approve-btn">Approve Pending Request</button>
+          <button id="reject-request-btn" class="secondary danger-outline">Reject Pending Request</button>
+          <button id="reissue-token-btn">Reissue Pickup Token</button>
+          <button id="cancel-request-btn" class="secondary danger-outline">Mark Cancelled</button>
+          <button id="open-guest-btn" class="secondary">Open Guest Profile</button>
+        </div>
+
+        <div class="detail-grid" id="detail-summary-grid"></div>
+
+        <section class="detail-section">
+          <h3>Guest & Request</h3>
+          <div id="detail-guest-request"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>Token & Pickup</h3>
+          <div id="detail-token"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>Status Timeline</h3>
+          <div id="detail-timeline" class="timeline"></div>
+        </section>
+
+        <section class="detail-section">
+          <h3>Activity Logs</h3>
+          <div id="detail-logs"></div>
+        </section>
+      </aside>
+    </div>
+
+    <script src="../shared/firebase-config.example.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

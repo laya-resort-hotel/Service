@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guest Reward Pickup</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="eyebrow">Laya Adventure</div>
+        <h1>Reward Pickup QR</h1>
+        <p>
+          หน้านี้สำหรับแขกใช้แสดง QR เพื่อรับของรางวัลจริงที่เคาน์เตอร์หรือกับพนักงาน NPC
+          หลังจากรายการแลกรางวัลถูกอนุมัติแล้ว
+        </p>
+      </section>
+
+      <section class="grid grid-2">
+        <article class="card">
+          <h2>Pickup Token</h2>
+          <label class="label" for="redemption-id">Approved Redemption ID</label>
+          <input id="redemption-id" placeholder="เช่น redemption_redemption_requests_001" />
+
+          <div class="actions" style="margin-top: 12px;">
+            <button id="load-token-btn">Load Pickup QR</button>
+            <button id="refresh-token-btn" class="secondary">Reissue QR</button>
+          </div>
+
+          <div id="guest-status" class="status" style="margin-top: 14px;">
+            รอโหลด token...
+          </div>
+
+          <div class="kv" style="margin-top: 14px;">
+            <div>Signed in user</div><div id="auth-user">-</div>
+            <div>Guest UID</div><div id="guest-uid">-</div>
+            <div>Reward ID</div><div id="reward-id">-</div>
+            <div>Request ID</div><div id="request-id">-</div>
+            <div>Expires at</div><div id="expires-at">-</div>
+          </div>
+
+          <div style="margin-top: 14px;">
+            <div class="label">Fallback code</div>
+            <div id="pickup-code" class="code-pill">-</div>
+          </div>
+
+          <div class="actions" style="margin-top: 14px;">
+            <button id="copy-code-btn" class="ghost">Copy Code</button>
+          </div>
+
+          <p class="note">
+            หน้า demo นี้ต้องใช้ Firebase Auth อยู่แล้วในแอปหลักของหน่อย
+            หรือให้แอดมินเปิดหน้าแทนแขกเพื่อออก pickup token ได้
+          </p>
+        </article>
+
+        <article class="card">
+          <h2>QR Display</h2>
+          <div id="pickup-qr" class="qr-panel">
+            <div class="muted">ยังไม่มี QR</div>
+          </div>
+          <p class="note">
+            ถ้า browser โหลด library ไม่ได้ หน้านี้จะยังแสดง fallback code ให้พนักงานกรอกได้ด้วยมือ
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script src="../shared/firebase-config.example.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff Reward Scanner</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="eyebrow">Laya Adventure Staff</div>
+        <h1>Reward Fulfillment Scanner</h1>
+        <p>
+          หน้านี้สำหรับพนักงานใช้สแกน QR รับรางวัลจริงของแขก แล้วปิดรายการ fulfillment
+          ให้ครบจาก pickup token แบบใช้ครั้งเดียว
+        </p>
+      </section>
+
+      <section class="grid grid-2">
+        <article class="card">
+          <h2>Scanner</h2>
+          <div class="actions">
+            <button id="start-scan-btn">Start Camera</button>
+            <button id="stop-scan-btn" class="secondary">Stop Camera</button>
+          </div>
+
+          <div id="staff-status" class="status" style="margin-top: 14px;">
+            พร้อมเริ่มสแกน
+          </div>
+
+          <div class="scanner-frame" style="margin-top: 14px; padding: 8px;">
+            <div id="qr-reader"></div>
+          </div>
+
+          <label class="label" for="manual-code" style="margin-top: 14px;">Manual scanned code</label>
+          <input id="manual-code" placeholder="เช่น RP_ABC123XYZ7890" />
+
+          <label class="label" for="notes" style="margin-top: 14px;">Notes</label>
+          <textarea id="notes" rows="4" placeholder="Guest received reward at lobby"></textarea>
+
+          <div class="actions" style="margin-top: 14px;">
+            <button id="submit-code-btn">Submit Code</button>
+            <button id="clear-form-btn" class="ghost">Clear</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="badge">Staff only</div>
+          <h2 style="margin-top: 12px;">Latest result</h2>
+
+          <div class="kv">
+            <div>Signed in user</div><div id="auth-user">-</div>
+            <div>Redemption ID</div><div id="result-redemption-id">-</div>
+            <div>Guest UID</div><div id="result-guest-uid">-</div>
+            <div>Reward ID</div><div id="result-reward-id">-</div>
+            <div>Request ID</div><div id="result-request-id">-</div>
+            <div>Token ID</div><div id="result-token-id">-</div>
+            <div>Fulfilled at</div><div id="result-fulfilled-at">-</div>
+          </div>
+
+          <div id="history" style="margin-top: 18px;">
+            <div class="history-item muted small">ยังไม่มีการสแกนในรอบนี้</div>
+          </div>
+
+          <p class="note">
+            หน้า demo นี้ใช้ <span class="code-pill">html5-qrcode</span> เพื่อสแกนจากกล้องหรือไฟล์ภาพ
+            และยังมีช่อง manual input สำรองไว้กรณีกล้องถูกปิดสิทธิ์
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script src="../shared/firebase-config.example.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
