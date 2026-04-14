@@ -17,3 +17,8 @@
 - ระบบค้นหาใน `guest_daily`
 - ถ้าพบข้อมูล จะดึงชื่อผู้เข้าพัก / package / pax มาเก็บเป็น session ฝั่ง browser
 - จากนั้น redirect ไปหน้า `departments/index.html`
+
+
+## Debug Mode
+- มีปุ่ม `Test guest_daily / Debug การค้นหา` บนหน้าแรก
+- ใช้สำหรับเช็กว่าอ่าน Firestore ได้ไหม, ใช้ project ไหน, และ sample room ใน `guest_daily` มีอะไรบ้าง

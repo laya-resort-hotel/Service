@@ -42,9 +42,17 @@
           </label>
 
           <button id="submitBtn" type="submit" class="primary-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
+          <button id="testGuestDailyBtn" type="button" class="secondary-btn wide-btn">Test guest_daily / Debug การค้นหา</button>
         </form>
 
         <div id="statusBox" class="status-box hidden"></div>
+        <details class="debug-panel" id="debugPanel">
+          <summary>ดูข้อมูล debug</summary>
+          <div class="debug-actions">
+            <button id="clearDebugBtn" type="button" class="ghost-btn">ล้าง debug</button>
+          </div>
+          <pre id="debugOutput" class="debug-output">ยังไม่มีข้อมูล debug</pre>
+        </details>
 
         <div class="mini-actions two-actions">
           <button id="openPortalBtn" class="secondary-btn" type="button">เข้าสู่หน้ารวมแผนก</button>

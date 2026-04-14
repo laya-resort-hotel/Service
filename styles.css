@@ -379,3 +379,46 @@ code {
     grid-template-columns: 1fr;
   }
 }
+
+
+.wide-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+.debug-panel {
+  margin-top: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  background: rgba(5, 19, 18, 0.55);
+  overflow: hidden;
+}
+.debug-panel summary {
+  cursor: pointer;
+  padding: 14px 18px;
+  font-weight: 700;
+  color: #d9c08a;
+}
+.debug-actions {
+  padding: 0 18px 12px;
+}
+.ghost-btn {
+  border: 1px solid rgba(217,192,138,0.35);
+  background: transparent;
+  color: #e8d7aa;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.debug-output {
+  margin: 0;
+  padding: 16px 18px 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  max-height: 360px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #c9f3e9;
+  font-size: 13px;
+  line-height: 1.45;
+  background: rgba(0, 0, 0, 0.22);
+}

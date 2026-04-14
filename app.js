@@ -9,6 +9,8 @@ import {
   where,
   limit,
   getDocs,
+  doc,
+  getDoc,
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { firebaseWebConfig } from './frontend/shared/firebase-config.js';
 
@@ -27,6 +29,10 @@ const submitBtn = document.getElementById('submitBtn');
 const statusBox = document.getElementById('statusBox');
 const openMenuBtn = document.getElementById('openMenuBtn');
 const openPortalBtn = document.getElementById('openPortalBtn');
+const testGuestDailyBtn = document.getElementById('testGuestDailyBtn');
+const clearDebugBtn = document.getElementById('clearDebugBtn');
+const debugOutput = document.getElementById('debugOutput');
+const debugPanel = document.getElementById('debugPanel');
 
 let db = null;
 let auth = null;
@@ -50,6 +56,16 @@ openMenuBtn.addEventListener('click', () => {
 openPortalBtn.addEventListener('click', () => {
   window.location.href = DEPARTMENTS_URL;
 });
+
+if (testGuestDailyBtn) {
+  testGuestDailyBtn.addEventListener('click', runGuestDailyDebug);
+}
+
+if (clearDebugBtn) {
+  clearDebugBtn.addEventListener('click', () => {
+    debugOutput.textContent = 'ยังไม่มีข้อมูล debug';
+  });
+}
 
 roomNoInput.addEventListener('input', () => {
   roomNoInput.value = normalizeRoomNo(roomNoInput.value);
@@ -84,6 +100,7 @@ form.addEventListener('submit', async (event) => {
     const guestRecord = await findGuestDailyRecordByRoom(roomNo);
     if (!guestRecord) {
       showStatus(`ไม่พบข้อมูลห้อง ${roomNo} ในระบบ Check-in / IHN วันนี้หรือข้อมูลล่าสุด กรุณาติดต่อพนักงานโรงแรม`, 'error');
+      await runGuestDailyDebug(roomNo);
       return;
     }
 
@@ -303,6 +320,111 @@ function getBangkokDateKey() {
     day: '2-digit',
   });
   return formatter.format(new Date());
+}
+
+
+async function runGuestDailyDebug(roomOverride = '') {
+  if (debugPanel) debugPanel.open = true;
+
+  const roomNo = normalizeRoomNo(roomOverride || roomNoInput.value);
+  const lines = [];
+  const push = (label, value) => lines.push(`${label}: ${typeof value === 'string' ? value : JSON.stringify(value, null, 2)}`);
+
+  push('เวลา', new Date().toISOString());
+  push('roomNoInput', roomNo || '(empty)');
+  push('firebaseReady', firebaseReady);
+  push('projectId', firebaseWebConfig?.projectId || '(missing)');
+  push('authDomain', firebaseWebConfig?.authDomain || '(missing)');
+  push('collection', GUEST_DAILY_COLLECTION);
+  push('roomVariants', buildRoomVariants(roomNo || ''));
+
+  if (!firebaseReady || !db || !auth) {
+    push('result', 'Firebase not ready');
+    debugOutput.textContent = lines.join('
+
+');
+    return;
+  }
+
+  try {
+    const user = await ensureAnonymousAuth();
+    push('authUid', user?.uid || '(none)');
+    push('authProvider', user?.isAnonymous ? 'anonymous' : 'other');
+  } catch (error) {
+    push('authError', String(error?.message || error || 'unknown auth error'));
+    debugOutput.textContent = lines.join('
+
+');
+    return;
+  }
+
+  const roomFields = ['room', 'room_no', 'roomNo', 'roomNormalized', 'roomNoNormalized', 'Room'];
+  const exactHits = [];
+
+  for (const fieldName of roomFields) {
+    for (const variant of buildRoomVariants(roomNo || '')) {
+      try {
+        const snapshot = await getDocs(query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', variant), limit(5)));
+        if (!snapshot.empty) {
+          snapshot.forEach((docSnap) => {
+            exactHits.push({
+              docId: docSnap.id,
+              fieldName,
+              variant,
+              roomExtracted: extractRoomNo(docSnap.data()),
+              guestName: firstNonEmpty([docSnap.data().guest_name, docSnap.data().guestName, docSnap.data().name, docSnap.data().fullName]),
+              packageName: firstNonEmpty([docSnap.data().package, docSnap.data().mealplan]),
+            });
+          });
+        }
+      } catch (error) {
+        push(`queryError ${fieldName}=${variant}`, String(error?.message || error || 'query error'));
+      }
+    }
+  }
+
+  push('exactHitCount', exactHits.length);
+  if (exactHits.length) {
+    push('exactHits', exactHits);
+  }
+
+  try {
+    const sampleSnapshot = await getDocs(query(collection(db, GUEST_DAILY_COLLECTION), limit(10)));
+    const samples = [];
+    sampleSnapshot.forEach((docSnap) => {
+      const data = docSnap.data() || {};
+      samples.push({
+        docId: docSnap.id,
+        room: extractRoomNo(data),
+        guestName: firstNonEmpty([data.guest_name, data.guestName, data.name, data.fullName]),
+        packageName: firstNonEmpty([data.package, data.mealplan]),
+        businessDate: firstNonEmpty([data.businessDate, data.business_date, data.dateKey, data.date]),
+        rawRoomFields: {
+          room: data.room ?? null,
+          room_no: data.room_no ?? null,
+          roomNo: data.roomNo ?? null,
+          roomNormalized: data.roomNormalized ?? null,
+          roomNoNormalized: data.roomNoNormalized ?? null,
+          Room: data.Room ?? null,
+        },
+      });
+    });
+
+    push('sampleCount', samples.length);
+    push('samples', samples);
+
+    if (roomNo && !exactHits.length) {
+      const normalizedTarget = normalizeRoomNo(roomNo);
+      const fuzzyHits = samples.filter((item) => buildRoomVariants(item.room || '').includes(normalizedTarget));
+      push('fuzzyHitsInSample', fuzzyHits);
+    }
+  } catch (error) {
+    push('sampleReadError', String(error?.message || error || 'sample read error'));
+  }
+
+  debugOutput.textContent = lines.join('
+
+');
 }
 
 function normalizeRoomNo(value) {
