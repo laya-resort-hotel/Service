@@ -340,7 +340,7 @@ async function runGuestDailyDebug(roomOverride = '') {
 
   if (!firebaseReady || !db || !auth) {
     push('result', 'Firebase not ready');
-    __PLACEHOLDER__
+    debugOutput.textContent = lines.join("\n\n");
     return;
   }
 
@@ -350,7 +350,7 @@ async function runGuestDailyDebug(roomOverride = '') {
     push('authProvider', user?.isAnonymous ? 'anonymous' : 'other');
   } catch (error) {
     push('authError', String(error?.message || error || 'unknown auth error'));
-    __PLACEHOLDER__
+    debugOutput.textContent = lines.join("\n\n");
     return;
   }
 
@@ -418,7 +418,7 @@ async function runGuestDailyDebug(roomOverride = '') {
     push('sampleReadError', String(error?.message || error || 'sample read error'));
   }
 
-  __PLACEHOLDER__
+  debugOutput.textContent = lines.join("\n\n");
 }
 
 function normalizeRoomNo(value) {
