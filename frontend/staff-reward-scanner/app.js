@@ -4,7 +4,7 @@ import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/
 
 const appConfig = window.APP_CONFIG;
 if (!appConfig?.firebaseConfig) {
-  throw new Error('Missing APP_CONFIG. Copy frontend/shared/firebase-config.example.js and fill your Firebase config first.');
+  throw new Error('Missing APP_CONFIG. Copy frontend/shared/firebase-config.js and fill your Firebase config first.');
 }
 
 const app = initializeApp(appConfig.firebaseConfig);
