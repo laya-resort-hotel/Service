@@ -12,9 +12,11 @@ import {
 import { firebaseWebConfig } from './frontend/shared/firebase-config.js';
 
 const MENU_URL = 'https://laya-resort-hotel.github.io/MENU/';
+const DEPARTMENTS_URL = './departments/index.html';
 const STORAGE_KEY = 'laya_guest_checkins_local';
 const LAST_CHECKIN_KEY = 'laya_last_guest_checkin';
-const REDIRECT_DELAY_MS = 1200;
+const REDIRECT_DELAY_MS = 1000;
+const ROOM_PATTERN = /^[ABCD]\d+$/;
 
 const form = document.getElementById('guestForm');
 const guestNameInput = document.getElementById('guestName');
@@ -23,6 +25,7 @@ const consentInput = document.getElementById('consent');
 const submitBtn = document.getElementById('submitBtn');
 const statusBox = document.getElementById('statusBox');
 const openMenuBtn = document.getElementById('openMenuBtn');
+const openPortalBtn = document.getElementById('openPortalBtn');
 
 let db = null;
 let firebaseReady = false;
@@ -41,6 +44,10 @@ openMenuBtn.addEventListener('click', () => {
   window.location.href = MENU_URL;
 });
 
+openPortalBtn.addEventListener('click', () => {
+  window.location.href = DEPARTMENTS_URL;
+});
+
 roomNoInput.addEventListener('input', () => {
   roomNoInput.value = normalizeRoomNo(roomNoInput.value);
 });
@@ -54,6 +61,11 @@ form.addEventListener('submit', async (event) => {
 
   if (!guestName || !roomNo || !consent) {
     showStatus('กรุณากรอกชื่อ เลขห้อง และกดยินยอมก่อนบันทึกข้อมูล', 'error');
+    return;
+  }
+
+  if (!isValidRoomNo(roomNo)) {
+    showStatus('เลขห้องไม่ถูกต้อง กรุณาใช้รูปแบบ A/B/C/D ตามด้วยตัวเลข เช่น A203 หรือ D108', 'error');
     return;
   }
 
@@ -82,9 +94,9 @@ form.addEventListener('submit', async (event) => {
       });
 
       localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
-      showStatus('บันทึกข้อมูลเข้าระบบเรียบร้อยแล้ว กำลังพาเข้าสู่เมนูร้านอาหาร...', 'success');
+      showStatus('บันทึกข้อมูลเข้าระบบเรียบร้อยแล้ว กำลังพาเข้าสู่หน้ารวมแผนก...', 'success');
       form.reset();
-      redirectToMenuWithDelay();
+      redirectToDepartmentsWithDelay();
       return;
     }
 
@@ -100,9 +112,9 @@ form.addEventListener('submit', async (event) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
     localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
 
-    showStatus('บันทึกข้อมูลเรียบร้อยแล้ว กำลังพาเข้าสู่เมนูร้านอาหาร...', 'success');
+    showStatus('บันทึกข้อมูลเรียบร้อยแล้ว กำลังพาเข้าสู่หน้ารวมแผนก...', 'success');
     form.reset();
-    redirectToMenuWithDelay();
+    redirectToDepartmentsWithDelay();
   } catch (error) {
     console.error(error);
     showStatus('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง', 'error');
@@ -136,9 +148,13 @@ function normalizeRoomNo(value) {
     .toUpperCase();
 }
 
-function redirectToMenuWithDelay() {
+function isValidRoomNo(roomNo) {
+  return ROOM_PATTERN.test(roomNo);
+}
+
+function redirectToDepartmentsWithDelay() {
   window.setTimeout(() => {
-    window.location.href = MENU_URL;
+    window.location.href = DEPARTMENTS_URL;
   }, REDIRECT_DELAY_MS);
 }
 

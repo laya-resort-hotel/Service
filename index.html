@@ -26,7 +26,7 @@
       <section class="card form-card">
         <div class="card-head">
           <h2>ข้อมูลผู้เข้าพัก</h2>
-          <p>ข้อมูลจะถูกบันทึกลงระบบเมื่อเชื่อมต่อ Firebase เรียบร้อยแล้ว</p>
+          <p>หลังบันทึกสำเร็จ ระบบจะพาไปยังหน้ารวมแผนกของโรงแรมโดยอัตโนมัติ</p>
         </div>
 
         <form id="guestForm" class="guest-form">
@@ -38,6 +38,7 @@
           <label class="field">
             <span>เลขห้อง</span>
             <input id="roomNo" name="roomNo" type="text" placeholder="เช่น A203" maxlength="20" required />
+            <small class="field-hint">รูปแบบที่ถูกต้อง: A/B/C/D ตามด้วยตัวเลข เช่น A203, B1201, D88</small>
           </label>
 
           <label class="field checkbox-field">
@@ -50,17 +51,18 @@
 
         <div id="statusBox" class="status-box hidden"></div>
 
-        <div class="mini-actions">
-          <button id="openMenuBtn" class="secondary-btn" type="button">เข้าสู่เมนูร้านอาหาร</button>
+        <div class="mini-actions two-actions">
+          <button id="openPortalBtn" class="secondary-btn" type="button">เข้าสู่หน้ารวมแผนก</button>
+          <button id="openMenuBtn" class="secondary-btn" type="button">เปิดเมนูร้านอาหาร</button>
         </div>
       </section>
 
       <aside class="card info-card">
-        <h3>บริการที่พร้อมใช้งาน</h3>
+        <h3>แผนกที่พร้อมใช้งาน</h3>
         <div class="info-list">
-          <div class="info-item">
+          <div class="info-item active-dept">
             <span class="info-title">F&amp;B</span>
-            <span class="info-desc">เมนูอาหารและเครื่องดื่มของโรงแรม</span>
+            <span class="info-desc">เข้าสู่เมนูอาหารและเครื่องดื่มของโรงแรม</span>
           </div>
           <div class="info-item soon">
             <span class="info-title">Front Office</span>

@@ -40,6 +40,10 @@ body {
   box-shadow: 0 18px 40px rgba(0,0,0,0.28);
 }
 
+.compact-hero {
+  min-height: 220px;
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -50,7 +54,7 @@ body {
   position: relative;
   z-index: 1;
   padding: 36px;
-  max-width: 690px;
+  max-width: 760px;
 }
 
 .eyebrow {
@@ -74,7 +78,8 @@ body {
   line-height: 1.7;
 }
 
-.main-grid {
+.main-grid,
+.departments-layout {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 24px;
@@ -90,6 +95,10 @@ body {
   backdrop-filter: blur(8px);
 }
 
+.full-width {
+  grid-column: span 1;
+}
+
 .card-head h2 {
   margin: 0 0 8px;
   font-size: 1.6rem;
@@ -97,7 +106,9 @@ body {
 
 .card-head p,
 .note-box p,
-.info-desc {
+.info-desc,
+.tile-link,
+.department-tile p {
   color: var(--muted);
   line-height: 1.7;
 }
@@ -115,6 +126,11 @@ body {
 
 .field span {
   font-weight: 600;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 input[type="text"] {
@@ -146,7 +162,8 @@ input[type="text"]:focus {
 }
 
 .primary-btn,
-.secondary-btn {
+.secondary-btn,
+.as-link {
   border: 0;
   border-radius: 16px;
   padding: 15px 18px;
@@ -154,6 +171,10 @@ input[type="text"]:focus {
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .primary-btn {
@@ -162,14 +183,17 @@ input[type="text"]:focus {
   box-shadow: 0 10px 24px rgba(216, 192, 139, 0.25);
 }
 
-.secondary-btn {
+.secondary-btn,
+.as-link {
   background: rgba(255,255,255,0.06);
   color: var(--text);
   border: 1px solid rgba(255,255,255,0.12);
 }
 
 .primary-btn:hover,
-.secondary-btn:hover {
+.secondary-btn:hover,
+.as-link:hover,
+.department-tile:hover {
   transform: translateY(-1px);
 }
 
@@ -205,8 +229,15 @@ input[type="text"]:focus {
   margin-top: 18px;
 }
 
+.two-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .info-card h3,
-.note-box h4 {
+.note-box h4,
+.summary-card h3 {
   margin-top: 0;
 }
 
@@ -227,6 +258,10 @@ input[type="text"]:focus {
   opacity: 0.72;
 }
 
+.info-item.active-dept {
+  border-color: rgba(216, 192, 139, 0.25);
+}
+
 .info-title {
   display: block;
   font-weight: 700;
@@ -243,8 +278,90 @@ code {
   color: var(--gold-strong);
 }
 
+.with-inline-action {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.department-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.department-tile {
+  text-align: left;
+  padding: 22px;
+  border-radius: 22px;
+  min-height: 200px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  color: var(--text);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.department-tile.active {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.department-tile.soon {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.department-tile h3 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.tile-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(216, 192, 139, 0.14);
+  color: var(--gold-strong);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.tile-link {
+  margin-top: auto;
+  font-weight: 700;
+}
+
+.summary-list {
+  display: grid;
+  gap: 14px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.summary-row span {
+  color: var(--muted);
+}
+
+.empty-state {
+  color: var(--muted);
+}
+
 @media (max-width: 900px) {
-  .main-grid {
+  .main-grid,
+  .departments-layout {
     grid-template-columns: 1fr;
   }
 
@@ -255,5 +372,10 @@ code {
   .card {
     padding: 20px;
     border-radius: 22px;
+  }
+
+  .department-grid,
+  .two-actions {
+    grid-template-columns: 1fr;
   }
 }
