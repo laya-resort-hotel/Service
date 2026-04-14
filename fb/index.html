@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F&B Portal | LAYA Resort Hotel</title>
+  <meta name="description" content="F&B department portal" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .portal-header { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .back-link {
+      display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:#f1cf87;
+      padding:10px 14px; border-radius:14px; border:1px solid rgba(241,207,135,.25); background:rgba(255,255,255,.04);
+    }
+    .menu-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+    .menu-card {
+      text-decoration:none; color:inherit; padding:24px; border-radius:24px; min-height:180px;
+      border:1px solid rgba(255,255,255,.14); background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      box-shadow:0 20px 60px rgba(0,0,0,.3); display:flex; flex-direction:column; gap:12px;
+      transition:transform .18s ease, border-color .18s ease;
+    }
+    .menu-card:hover { transform:translateY(-4px); border-color:rgba(241,207,135,.45); }
+    .menu-card h3 { margin:0; font-size:28px; }
+    .menu-card p { margin:0; color:#c7c2b5; line-height:1.6; }
+    .menu-link { margin-top:auto; color:#f1cf87; font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="hero">
+      <div class="portal-header">
+        <div>
+          <div class="hero-badge">F&amp;B DEPARTMENT</div>
+          <h1>F&amp;B Portal</h1>
+          <p class="hero-text">รวมลิงก์สำคัญของแผนก Food &amp; Beverage เพื่อให้พนักงานเข้าใช้งานได้สะดวกจากหน้าเดียว</p>
+        </div>
+        <a class="back-link" href="../index.html">← กลับหน้าแรก</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="section-block">
+        <div class="section-head">
+          <h2>เมนูหลักของแผนก F&amp;B</h2>
+          <p>กดเลือกหัวข้อที่ต้องการใช้งาน</p>
+        </div>
+
+        <div class="menu-grid">
+          <a class="menu-card" href="https://laya-resort-hotel.github.io/MENU/" target="_blank" rel="noopener noreferrer">
+            <h3>ร้านอาหาร</h3>
+            <p>เข้าสู่หน้าระบบเมนูอาหารและเครื่องดื่มของโรงแรม</p>
+            <span class="menu-link">เปิดลิงก์ระบบ</span>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

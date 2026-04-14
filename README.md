@@ -1,20 +1,16 @@
-# Laya Hotel Adventure Web
+# LAYA Resort Hotel Portal
 
-Static frontend + Firebase Functions starter for the hotel reward flow.
+เว็บพอร์ทัลหลักของโรงแรม สำหรับรวมลิงก์และระบบของแต่ละแผนก
 
-## Open from homepage
-After deploying to GitHub Pages, open `/index.html` from the repo root.
+## โครงสร้างหลัก
+- `index.html` หน้าแรกของโรงแรม
+- `styles.css` ไฟล์สไตล์หลัก
+- `fb/index.html` หน้าแผนก F&B
 
-## Before use
-Edit:
+## วิธีใช้งานบน GitHub Pages
+1. อัปโหลดไฟล์ทั้งหมดขึ้น GitHub repository
+2. เปิด GitHub Pages ให้ชี้ไปที่ branch ที่ต้องการ
+3. หน้าแรกจะเริ่มที่ `index.html`
 
-`frontend/shared/firebase-config.js`
-
-Then deploy Firebase Functions in `/functions`.
-
-## Main pages
-- `/index.html`
-- `/frontend/guest-reward-pickup/index.html`
-- `/frontend/staff-reward-scanner/index.html`
-- `/frontend/admin-reward-queue/index.html`
-- `/frontend/admin-guest-profile/index.html`
+## ลิงก์ที่เปิดใช้งานแล้ว
+- ร้านอาหาร → https://laya-resort-hotel.github.io/MENU/

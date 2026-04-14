@@ -1,92 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Laya Hotel Adventure</title>
-    <link rel="stylesheet" href="./landing.css" />
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="hero">
-        <div class="hero-copy">
-          <div class="eyebrow">GitHub-ready web package</div>
-          <h1>Laya Hotel Adventure</h1>
-          <p>
-            หน้าแรกสำหรับเข้าใช้งานระบบ reward flow ของโรงแรม เปิดลิงก์แล้วเข้าหน้านี้ได้ทันที
-            และกดต่อไปยังหน้าของ Guest, Staff และ Admin ได้จากจอเดียว
-          </p>
-          <div class="hero-actions">
-            <a class="btn primary" href="./frontend/admin-reward-queue/index.html">เปิด Admin Queue</a>
-            <a class="btn" href="./frontend/staff-reward-scanner/index.html">เปิด Staff Scanner</a>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LAYA Resort Hotel Portal</title>
+  <meta name="description" content="Main portal for all hotel departments" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="hero">
+      <div class="hero-badge">LAYA RESORT HOTEL</div>
+      <h1>Hotel Main Portal</h1>
+      <p class="hero-text">
+        ศูนย์รวมลิงก์และระบบหลักของโรงแรม แยกตามแผนกอย่างชัดเจน เพื่อให้พนักงานเข้าใช้งานได้ง่ายจากหน้าเดียว
+      </p>
+    </header>
+
+    <main>
+      <section class="section-block">
+        <div class="section-head">
+          <h2>เลือกแผนก</h2>
+          <p>เริ่มจากแผนก F&amp;B ก่อน และสามารถเพิ่มหน้าแผนกอื่นต่อได้ภายหลัง</p>
+        </div>
+
+        <div class="department-grid">
+          <a class="department-card active" href="./fb/index.html">
+            <span class="department-tag">OPEN</span>
+            <h3>F&amp;B</h3>
+            <p>Food &amp; Beverage Portal</p>
+            <span class="department-link">เข้าสู่หน้าแผนก</span>
+          </a>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Front Office</h3>
+            <p>สำหรับระบบต้อนรับและงานหน้าฟรอนต์</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
+          </div>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Housekeeping</h3>
+            <p>สำหรับระบบห้องพักและงานแม่บ้าน</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
+          </div>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Engineering</h3>
+            <p>สำหรับระบบช่างและซ่อมบำรุง</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
+          </div>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Reservation</h3>
+            <p>สำหรับงานสำรองห้องพักและติดตามการจอง</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
+          </div>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Sales &amp; Marketing</h3>
+            <p>สำหรับลิงก์งานขาย โปรโมชัน และแคมเปญ</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
+          </div>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Recreation</h3>
+            <p>สำหรับกิจกรรมแขกและงาน recreation</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
+          </div>
+
+          <div class="department-card disabled">
+            <span class="department-tag soon">SOON</span>
+            <h3>Admin / Management</h3>
+            <p>สำหรับลิงก์ระบบจัดการและรายงานต่าง ๆ</p>
+            <span class="department-link">กำลังจัดเตรียม</span>
           </div>
         </div>
-        <div class="hero-panel">
-          <div class="panel-card">
-            <div class="panel-label">พร้อมอัป GitHub Pages</div>
-            <ul>
-              <li>มีหน้าแรก <code>index.html</code></li>
-              <li>มีหน้าเว็บย่อยครบตาม flow</li>
-              <li>แก้ Firebase config ได้จากไฟล์เดียว</li>
-            </ul>
-          </div>
-        </div>
-      </header>
-
-      <main>
-        <section class="section">
-          <div class="section-head">
-            <h2>เข้าใช้งานแต่ละส่วน</h2>
-            <p>เลือกหน้าที่ต้องการเปิดใช้งานได้ทันที</p>
-          </div>
-          <div class="card-grid">
-            <a class="nav-card" href="./frontend/guest-reward-pickup/index.html">
-              <span class="tag guest">Guest</span>
-              <h3>Guest Reward Pickup</h3>
-              <p>สำหรับแขกเปิด QR รับรางวัลจริง และรีเฟรช pickup token ได้</p>
-              <span class="go">Open page →</span>
-            </a>
-            <a class="nav-card" href="./frontend/staff-reward-scanner/index.html">
-              <span class="tag staff">Staff</span>
-              <h3>Staff Reward Scanner</h3>
-              <p>สำหรับพนักงานสแกน pickup QR และปิดรายการรับของรางวัล</p>
-              <span class="go">Open page →</span>
-            </a>
-            <a class="nav-card" href="./frontend/admin-reward-queue/index.html">
-              <span class="tag admin">Admin</span>
-              <h3>Admin Reward Queue</h3>
-              <p>ดู pending, approved, fulfilled, expired, rejected พร้อม detail modal และ export CSV</p>
-              <span class="go">Open page →</span>
-            </a>
-            <a class="nav-card" href="./frontend/admin-guest-profile/index.html">
-              <span class="tag admin">Admin</span>
-              <h3>Admin Guest Profile</h3>
-              <p>ดูข้อมูลแขก กระเป๋าเหรียญ reward และรายการย้อนหลัง</p>
-              <span class="go">Open page →</span>
-            </a>
-          </div>
-        </section>
-
-        <section class="section two-col">
-          <div class="info-card">
-            <h2>ก่อนใช้งานจริง</h2>
-            <ol>
-              <li>เปิดไฟล์ <code>frontend/shared/firebase-config.js</code></li>
-              <li>ใส่ค่า Firebase ของโปรเจกต์จริง</li>
-              <li>Deploy Functions ก่อน แล้วค่อยเปิดหน้าเว็บ</li>
-            </ol>
-          </div>
-          <div class="info-card">
-            <h2>ไฟล์สำคัญ</h2>
-            <ul>
-              <li><code>/index.html</code> หน้าแรก</li>
-              <li><code>/frontend/shared/firebase-config.js</code> ค่าคอนฟิก</li>
-              <li><code>/frontend/admin-reward-queue/</code> หน้าหลังบ้านหลัก</li>
-              <li><code>/functions/src/</code> Cloud Functions</li>
-            </ul>
-          </div>
-        </section>
-      </main>
-    </div>
-  </body>
+      </section>
+    </main>
+  </div>
+</body>
 </html>
