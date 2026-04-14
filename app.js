@@ -1,4 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import {
   getFirestore,
   collection,
@@ -13,13 +14,13 @@ import { firebaseWebConfig } from './frontend/shared/firebase-config.js';
 
 const MENU_URL = 'https://laya-resort-hotel.github.io/MENU/';
 const DEPARTMENTS_URL = './departments/index.html';
-const STORAGE_KEY = 'laya_guest_checkins_local';
 const LAST_CHECKIN_KEY = 'laya_last_guest_checkin';
-const REDIRECT_DELAY_MS = 1000;
+const REDIRECT_DELAY_MS = 1200;
 const ROOM_PATTERN = /^[ABCD]\d+$/;
+const GUEST_DAILY_COLLECTION = 'guest_daily';
+const LOGIN_LOG_COLLECTION = 'guest_portal_sessions';
 
 const form = document.getElementById('guestForm');
-const guestNameInput = document.getElementById('guestName');
 const roomNoInput = document.getElementById('roomNo');
 const consentInput = document.getElementById('consent');
 const submitBtn = document.getElementById('submitBtn');
@@ -28,12 +29,14 @@ const openMenuBtn = document.getElementById('openMenuBtn');
 const openPortalBtn = document.getElementById('openPortalBtn');
 
 let db = null;
+let auth = null;
 let firebaseReady = false;
 
 try {
   if (firebaseWebConfig && firebaseWebConfig.apiKey) {
     const app = initializeApp(firebaseWebConfig);
     db = getFirestore(app);
+    auth = getAuth(app);
     firebaseReady = true;
   }
 } catch (error) {
@@ -55,12 +58,11 @@ roomNoInput.addEventListener('input', () => {
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  const guestName = guestNameInput.value.trim();
   const roomNo = normalizeRoomNo(roomNoInput.value);
   const consent = consentInput.checked;
 
-  if (!guestName || !roomNo || !consent) {
-    showStatus('กรุณากรอกชื่อ เลขห้อง และกดยินยอมก่อนบันทึกข้อมูล', 'error');
+  if (!roomNo || !consent) {
+    showStatus('กรุณากรอกเลขห้องและกดยินยอมก่อนเข้าสู่ระบบ', 'error');
     return;
   }
 
@@ -69,76 +71,174 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
-  const payload = {
-    guestName,
-    roomNo,
-    roomNoNormalized: roomNo,
-    consent,
-    source: 'hotel_main_portal',
-    createdAtISO: new Date().toISOString(),
-  };
+  if (!firebaseReady || !db || !auth) {
+    showStatus('ยังไม่ได้เชื่อม Firebase ของระบบ Check-in กรุณาใส่ค่าใน firebase-config.js ก่อนใช้งานจริง', 'error');
+    return;
+  }
 
   setSubmitting(true);
 
   try {
-    if (firebaseReady && db) {
-      const duplicate = await checkDuplicateRoomInFirestore(roomNo);
-      if (duplicate) {
-        showStatus(`เลขห้อง ${roomNo} ถูกบันทึกไว้แล้ว กรุณาตรวจสอบอีกครั้งก่อนดำเนินการต่อ`, 'error');
-        return;
-      }
+    await ensureAnonymousAuth();
 
-      await addDoc(collection(db, 'guest_checkins'), {
-        ...payload,
-        createdAt: serverTimestamp(),
-      });
-
-      localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
-      showStatus('บันทึกข้อมูลเข้าระบบเรียบร้อยแล้ว กำลังพาเข้าสู่หน้ารวมแผนก...', 'success');
-      form.reset();
-      redirectToDepartmentsWithDelay();
+    const guestRecord = await findGuestDailyRecordByRoom(roomNo);
+    if (!guestRecord) {
+      showStatus(`ไม่พบข้อมูลห้อง ${roomNo} ในระบบ Check-in / IHN วันนี้หรือข้อมูลล่าสุด กรุณาติดต่อพนักงานโรงแรม`, 'error');
       return;
     }
 
-    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const hasDuplicate = existing.some((item) => normalizeRoomNo(item.roomNo || item.roomNoNormalized || '') === roomNo);
+    const payload = buildGuestSessionPayload(roomNo, guestRecord);
 
-    if (hasDuplicate) {
-      showStatus(`เลขห้อง ${roomNo} ถูกบันทึกไว้แล้วในเครื่องนี้ กรุณาตรวจสอบก่อนบันทึกซ้ำ`, 'error');
-      return;
-    }
-
-    existing.push(payload);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
     localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
 
-    showStatus('บันทึกข้อมูลเรียบร้อยแล้ว กำลังพาเข้าสู่หน้ารวมแผนก...', 'success');
+    await addDoc(collection(db, LOGIN_LOG_COLLECTION), {
+      roomNo: payload.roomNo,
+      roomNoNormalized: payload.roomNo,
+      guestName: payload.guestName,
+      packageName: payload.packageName,
+      pax: payload.pax,
+      businessDate: payload.businessDate || null,
+      sourceDocId: payload.sourceDocId,
+      sourceCollection: GUEST_DAILY_COLLECTION,
+      loginMode: 'room_lookup_sync',
+      createdAt: serverTimestamp(),
+      createdAtISO: payload.syncedAtISO,
+    });
+
+    showStatus(
+      `พบข้อมูลห้อง ${payload.roomNo} · ${payload.guestName || 'Guest'} · Package ${payload.packageName || '-'} กำลังเข้าสู่หน้ารวมแผนก...`,
+      'success'
+    );
+
     form.reset();
     redirectToDepartmentsWithDelay();
   } catch (error) {
     console.error(error);
-    showStatus('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง', 'error');
+    showStatus('เกิดข้อผิดพลาดในการดึงข้อมูลจากระบบ Check-in กรุณาลองใหม่อีกครั้ง', 'error');
   } finally {
     setSubmitting(false);
   }
 });
 
-async function checkDuplicateRoomInFirestore(roomNo) {
-  const guestCheckinsRef = collection(db, 'guest_checkins');
+async function ensureAnonymousAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  const result = await signInAnonymously(auth);
+  return result.user;
+}
 
-  const queriesToTry = [
-    query(guestCheckinsRef, where('roomNoNormalized', '==', roomNo), limit(1)),
-    query(guestCheckinsRef, where('roomNo', '==', roomNo), limit(1)),
-  ];
+async function findGuestDailyRecordByRoom(roomNo) {
+  const roomFields = ['room', 'room_no', 'roomNo', 'roomNormalized', 'roomNoNormalized'];
+  const results = new Map();
 
-  for (const roomQuery of queriesToTry) {
-    const snapshot = await getDocs(roomQuery);
-    if (!snapshot.empty) {
-      return true;
+  for (const fieldName of roomFields) {
+    try {
+      const roomQuery = query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', roomNo), limit(10));
+      const snapshot = await getDocs(roomQuery);
+      snapshot.forEach((docSnap) => {
+        if (!results.has(docSnap.id)) {
+          results.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
+        }
+      });
+    } catch (error) {
+      console.warn(`Room lookup failed for field ${fieldName}:`, error);
     }
   }
 
-  return false;
+  const docs = Array.from(results.values());
+  if (!docs.length) return null;
+
+  const bangkokToday = getBangkokDateKey();
+  const scored = docs
+    .map((doc) => ({ doc, score: getGuestDocScore(doc, bangkokToday) }))
+    .sort((a, b) => b.score - a.score);
+
+  return scored[0].doc;
+}
+
+function buildGuestSessionPayload(roomNo, guestRecord) {
+  const guestName = firstNonEmpty([
+    guestRecord.guest_name,
+    guestRecord.guestName,
+    guestRecord.name,
+    guestRecord.fullName,
+  ]);
+
+  const packageName = firstNonEmpty([
+    guestRecord.package,
+    guestRecord.mealplan,
+    guestRecord.breakfastPackage,
+    guestRecord.breakfast_package,
+    guestRecord.specialPackage,
+    guestRecord.special_package,
+  ]);
+
+  const pax = guestRecord.pax ?? guestRecord.adults ?? guestRecord.guest_count ?? guestRecord.guestCount ?? null;
+  const businessDate = firstNonEmpty([
+    guestRecord.businessDate,
+    guestRecord.business_date,
+    guestRecord.dateKey,
+    guestRecord.date,
+  ]);
+
+  return {
+    roomNo,
+    guestName: guestName || 'Guest',
+    packageName: packageName || '-',
+    pax: pax ?? '-',
+    breakfastEligible: guestRecord.eligible ?? guestRecord.breakfastEligible ?? null,
+    businessDate: businessDate || '',
+    sourceDocId: guestRecord.id || '',
+    sourceCollection: GUEST_DAILY_COLLECTION,
+    syncedAtISO: new Date().toISOString(),
+    loginMode: 'room_lookup_sync',
+  };
+}
+
+function getGuestDocScore(doc, bangkokToday) {
+  let score = 0;
+
+  const businessDate = firstNonEmpty([
+    doc.businessDate,
+    doc.business_date,
+    doc.dateKey,
+    doc.date,
+  ]);
+
+  if (businessDate && String(businessDate).trim() === bangkokToday) {
+    score += 1000000000000;
+  }
+
+  const createdAt = toMillis(doc.createdAt) || toMillis(doc.updatedAt) || toMillis(doc.importedAt) || 0;
+  score += createdAt;
+
+  return score;
+}
+
+function toMillis(value) {
+  if (!value) return 0;
+  if (typeof value?.toMillis === 'function') return value.toMillis();
+  if (value instanceof Date) return value.getTime();
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function firstNonEmpty(values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return String(value).trim();
+    }
+  }
+  return '';
+}
+
+function getBangkokDateKey() {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  return formatter.format(new Date());
 }
 
 function normalizeRoomNo(value) {
@@ -166,5 +266,5 @@ function showStatus(message, type) {
 
 function setSubmitting(isSubmitting) {
   submitBtn.disabled = isSubmitting;
-  submitBtn.textContent = isSubmitting ? 'กำลังบันทึก...' : 'บันทึกข้อมูลเข้าระบบ';
+  submitBtn.textContent = isSubmitting ? 'กำลังค้นหาข้อมูล...' : 'ค้นหาข้อมูลและเข้าสู่ระบบ';
 }

@@ -29,7 +29,7 @@
             <h2>เลือกแผนก</h2>
             <p>รวมลิงก์สำคัญของแต่ละแผนกไว้ในหน้าเดียว เพื่อให้ใช้งานต่อได้สะดวก</p>
           </div>
-          <a class="secondary-btn as-link" href="../index.html">กลับหน้าเช็กอิน</a>
+          <a class="secondary-btn as-link" href="../index.html">กลับหน้าล็อกอิน</a>
         </div>
 
         <div class="department-grid">
@@ -66,7 +66,7 @@
       <aside class="card summary-card">
         <h3>ข้อมูลผู้เข้าพักล่าสุด</h3>
         <div id="guestSummary" class="summary-list empty-state">
-          ยังไม่พบข้อมูลการเช็กอินล่าสุดในอุปกรณ์นี้
+          ยังไม่พบข้อมูลการเข้าสู่ระบบล่าสุดในอุปกรณ์นี้
         </div>
       </aside>
     </main>
@@ -81,15 +81,22 @@
       try {
         const data = JSON.parse(last);
         const guestName = (data.guestName || '').trim();
-        const roomNo = (data.roomNoNormalized || data.roomNo || '').trim();
+        const roomNo = (data.roomNo || '').trim();
+        const packageName = (data.packageName || '-').trim();
+        const pax = data.pax ?? '-';
+        const businessDate = (data.businessDate || '').trim();
+        const syncedAt = data.syncedAtISO ? new Date(data.syncedAtISO).toLocaleString('th-TH') : '-';
 
         if (guestName || roomNo) {
-          welcomeText.textContent = `ยินดีต้อนรับ ${guestName || 'Guest'}${roomNo ? ` · ห้อง ${roomNo}` : ''} กรุณาเลือกแผนกที่ต้องการใช้งาน`;
+          welcomeText.textContent = `ยินดีต้อนรับ ${guestName || 'Guest'}${roomNo ? ` · ห้อง ${roomNo}` : ''}${packageName ? ` · Package ${packageName}` : ''} กรุณาเลือกแผนกที่ต้องการใช้งาน`;
           guestSummary.classList.remove('empty-state');
           guestSummary.innerHTML = `
             <div class="summary-row"><span>ชื่อผู้เข้าพัก</span><strong>${guestName || '-'}</strong></div>
             <div class="summary-row"><span>เลขห้อง</span><strong>${roomNo || '-'}</strong></div>
-            <div class="summary-row"><span>บันทึกล่าสุด</span><strong>${new Date(data.createdAtISO || Date.now()).toLocaleString('th-TH')}</strong></div>
+            <div class="summary-row"><span>แพ็คเกจ</span><strong>${packageName || '-'}</strong></div>
+            <div class="summary-row"><span>จำนวนผู้เข้าพัก</span><strong>${pax || '-'}</strong></div>
+            <div class="summary-row"><span>Business Date</span><strong>${businessDate || '-'}</strong></div>
+            <div class="summary-row"><span>ซิงก์ล่าสุด</span><strong>${syncedAt}</strong></div>
           `;
         }
       } catch (error) {

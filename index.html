@@ -15,9 +15,9 @@
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <p class="eyebrow">LAYA RESORT HOTEL</p>
-        <h1>Guest Check-in Portal</h1>
+        <h1>Guest Portal Login</h1>
         <p class="hero-text">
-          กรุณากรอกชื่อและเลขห้องของท่านเพื่อบันทึกเข้าระบบก่อนเข้าใช้งานบริการต่าง ๆ ของโรงแรม
+          กรุณากรอกเลขห้องของท่าน ระบบจะดึงชื่อผู้เข้าพักและแพ็คเกจจากระบบ Check-in / IHN แล้วพาเข้าสู่หน้ารวมแผนกของโรงแรมโดยอัตโนมัติ
         </p>
       </div>
     </header>
@@ -25,16 +25,11 @@
     <main class="main-grid">
       <section class="card form-card">
         <div class="card-head">
-          <h2>ข้อมูลผู้เข้าพัก</h2>
-          <p>หลังบันทึกสำเร็จ ระบบจะพาไปยังหน้ารวมแผนกของโรงแรมโดยอัตโนมัติ</p>
+          <h2>เข้าสู่ระบบด้วยเลขห้อง</h2>
+          <p>ใส่เฉพาะเลขห้อง เช่น A203, B1201, D108 แล้วระบบจะค้นหาข้อมูลในฐานข้อมูล Check-in ของโรงแรมให้ทันที</p>
         </div>
 
         <form id="guestForm" class="guest-form">
-          <label class="field">
-            <span>ชื่อผู้เข้าพัก</span>
-            <input id="guestName" name="guestName" type="text" placeholder="เช่น Mr. John Smith" maxlength="120" required />
-          </label>
-
           <label class="field">
             <span>เลขห้อง</span>
             <input id="roomNo" name="roomNo" type="text" placeholder="เช่น A203" maxlength="20" required />
@@ -43,10 +38,10 @@
 
           <label class="field checkbox-field">
             <input id="consent" name="consent" type="checkbox" required />
-            <span>ยินยอมให้ระบบบันทึกข้อมูลเพื่อใช้ในการให้บริการภายในโรงแรม</span>
+            <span>ยินยอมให้ระบบดึงข้อมูลผู้เข้าพักจากระบบภายในเพื่อใช้ในการให้บริการของโรงแรม</span>
           </label>
 
-          <button id="submitBtn" type="submit" class="primary-btn">บันทึกข้อมูลเข้าระบบ</button>
+          <button id="submitBtn" type="submit" class="primary-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
         </form>
 
         <div id="statusBox" class="status-box hidden"></div>
@@ -58,31 +53,27 @@
       </section>
 
       <aside class="card info-card">
-        <h3>แผนกที่พร้อมใช้งาน</h3>
+        <h3>ระบบที่เชื่อมต่อ</h3>
         <div class="info-list">
           <div class="info-item active-dept">
+            <span class="info-title">IHN / Check-in Sync</span>
+            <span class="info-desc">ค้นหาจากเลขห้องใน Firestore collection <code>guest_daily</code> แล้วดึงชื่อผู้เข้าพัก, จำนวนผู้เข้าพัก และแพ็คเกจมาใช้ทันที</span>
+          </div>
+          <div class="info-item active-dept">
+            <span class="info-title">Departments Portal</span>
+            <span class="info-desc">หลังเข้าสู่ระบบสำเร็จ จะพาไปหน้ารวมแผนกและแสดงข้อมูลผู้เข้าพักล่าสุดบนอุปกรณ์นี้</span>
+          </div>
+          <div class="info-item soon">
             <span class="info-title">F&amp;B</span>
-            <span class="info-desc">เข้าสู่เมนูอาหารและเครื่องดื่มของโรงแรม</span>
-          </div>
-          <div class="info-item soon">
-            <span class="info-title">Front Office</span>
-            <span class="info-desc">Coming soon</span>
-          </div>
-          <div class="info-item soon">
-            <span class="info-title">Housekeeping</span>
-            <span class="info-desc">Coming soon</span>
-          </div>
-          <div class="info-item soon">
-            <span class="info-title">Engineering</span>
-            <span class="info-desc">Coming soon</span>
+            <span class="info-desc">พร้อมใช้งานจากหน้ารวมแผนก</span>
           </div>
         </div>
 
         <div class="note-box">
-          <h4>หมายเหตุการตั้งค่า</h4>
+          <h4>สิ่งที่ต้องตั้งค่าก่อนใช้งานจริง</h4>
           <p>
-            หากยังไม่ได้ใส่ค่า Firebase ในไฟล์ <code>firebase-config.js</code>
-            หน้าเว็บจะบันทึกแบบชั่วคราวในเครื่องนี้เท่านั้น เพื่อให้ทดสอบหน้าจอได้ก่อน
+            ใส่ค่า Firebase เดียวกับระบบ Check-in ลงในไฟล์ <code>frontend/shared/firebase-config.js</code>
+            และเปิด Anonymous Auth เพื่อให้หน้าเว็บนี้อ่านข้อมูล <code>guest_daily</code> ได้
           </p>
         </div>
       </aside>

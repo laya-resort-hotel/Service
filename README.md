@@ -1,36 +1,19 @@
-# LAYA Hotel Portal
+# LAYA Hotel Portal (IHN / Check-in Sync)
 
-เว็บหน้าแรกสำหรับแขกเช็กอินเข้าระบบของโรงแรม และหลังบันทึกสำเร็จจะพาไปยังหน้ารวมแผนกเพื่อเลือกใช้งานระบบต่อ
+หน้าแรกของระบบให้แขกกรอกเลขห้องเพียงอย่างเดียว จากนั้นระบบจะอ่านข้อมูลจาก Firestore collection `guest_daily` ของระบบ Check-in / IHN แล้วพาไปหน้ารวมแผนก
 
-## โครงหลัก
-- `index.html` หน้า Guest Check-in
-- `app.js` ตรวจชื่อ/เลขห้อง, เช็กเลขห้องซ้ำ, บันทึกข้อมูล, แล้วพาไปหน้ารวมแผนก
-- `departments/index.html` หน้ารวมแผนกหลังล็อกอิน
-- `styles.css` สไตล์หลักของทั้งหน้าเช็กอินและหน้ารวมแผนก
-- `frontend/shared/firebase-config.js` ใส่ค่า Firebase จริง
+## สิ่งที่ต้องตั้งค่าก่อนใช้งานจริง
 
-## กติกาเลขห้อง
-ระบบยอมรับเฉพาะเลขห้องรูปแบบ:
-- A ตามด้วยตัวเลข
-- B ตามด้วยตัวเลข
-- C ตามด้วยตัวเลข
-- D ตามด้วยตัวเลข
+1. ใส่ Firebase config เดียวกับระบบ Check-in ในไฟล์ `frontend/shared/firebase-config.js`
+2. เปิด Anonymous Auth ใน Firebase Authentication
+3. ให้ Firestore rules อนุญาตให้อ่าน collection `guest_daily` ได้สำหรับ anonymous user หรือ user ที่โรงแรมกำหนด
 
-ตัวอย่างที่ถูกต้อง:
-- `A203`
-- `B1201`
-- `C88`
-- `D108`
+## Flow
 
-## การทำงานหลังเช็กอิน
-1. แขกกรอกชื่อและเลขห้อง
-2. ระบบตรวจรูปแบบเลขห้อง
-3. ระบบเช็กเลขห้องซ้ำก่อนบันทึก
-4. เมื่อบันทึกสำเร็จ ระบบจะพาไป `departments/index.html`
-5. ในหน้ารวมแผนก ปุ่ม `F&B` จะเปิดลิงก์เมนู:
-   `https://laya-resort-hotel.github.io/MENU/`
-
-## การเชื่อมระบบจริง
-เมื่อใส่ค่า Firebase ใน `frontend/shared/firebase-config.js` แล้ว ระบบจะบันทึกข้อมูลลง Firestore collection ชื่อ `guest_checkins`
-
-ถ้ายังไม่ใส่ค่า Firebase ระบบจะ fallback ไปเก็บใน localStorage ของเครื่องนี้เพื่อใช้ทดสอบหน้าจอ
+- Guest เปิดหน้าแรก
+- กรอกเลขห้อง เช่น `A203`
+- ระบบเช็ก format ห้อง
+- ระบบ sign in แบบ anonymous
+- ระบบค้นหาใน `guest_daily`
+- ถ้าพบข้อมูล จะดึงชื่อผู้เข้าพัก / package / pax มาเก็บเป็น session ฝั่ง browser
+- จากนั้น redirect ไปหน้า `departments/index.html`
