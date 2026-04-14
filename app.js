@@ -4,11 +4,17 @@ import {
   collection,
   addDoc,
   serverTimestamp,
+  query,
+  where,
+  limit,
+  getDocs,
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import { firebaseWebConfig } from './frontend/shared/firebase-config.js';
 
 const MENU_URL = 'https://laya-resort-hotel.github.io/MENU/';
 const STORAGE_KEY = 'laya_guest_checkins_local';
+const LAST_CHECKIN_KEY = 'laya_last_guest_checkin';
+const REDIRECT_DELAY_MS = 1200;
 
 const form = document.getElementById('guestForm');
 const guestNameInput = document.getElementById('guestName');
@@ -35,11 +41,15 @@ openMenuBtn.addEventListener('click', () => {
   window.location.href = MENU_URL;
 });
 
+roomNoInput.addEventListener('input', () => {
+  roomNoInput.value = normalizeRoomNo(roomNoInput.value);
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const guestName = guestNameInput.value.trim();
-  const roomNo = roomNoInput.value.trim().toUpperCase();
+  const roomNo = normalizeRoomNo(roomNoInput.value);
   const consent = consentInput.checked;
 
   if (!guestName || !roomNo || !consent) {
@@ -50,6 +60,7 @@ form.addEventListener('submit', async (event) => {
   const payload = {
     guestName,
     roomNo,
+    roomNoNormalized: roomNo,
     consent,
     source: 'hotel_main_portal',
     createdAtISO: new Date().toISOString(),
@@ -59,27 +70,39 @@ form.addEventListener('submit', async (event) => {
 
   try {
     if (firebaseReady && db) {
+      const duplicate = await checkDuplicateRoomInFirestore(roomNo);
+      if (duplicate) {
+        showStatus(`เลขห้อง ${roomNo} ถูกบันทึกไว้แล้ว กรุณาตรวจสอบอีกครั้งก่อนดำเนินการต่อ`, 'error');
+        return;
+      }
+
       await addDoc(collection(db, 'guest_checkins'), {
         ...payload,
         createdAt: serverTimestamp(),
       });
 
-      localStorage.setItem('laya_last_guest_checkin', JSON.stringify(payload));
+      localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
       showStatus('บันทึกข้อมูลเข้าระบบเรียบร้อยแล้ว กำลังพาเข้าสู่เมนูร้านอาหาร...', 'success');
       form.reset();
-      setTimeout(() => {
-        window.location.href = MENU_URL;
-      }, 1200);
+      redirectToMenuWithDelay();
       return;
     }
 
     const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const hasDuplicate = existing.some((item) => normalizeRoomNo(item.roomNo || item.roomNoNormalized || '') === roomNo);
+
+    if (hasDuplicate) {
+      showStatus(`เลขห้อง ${roomNo} ถูกบันทึกไว้แล้วในเครื่องนี้ กรุณาตรวจสอบก่อนบันทึกซ้ำ`, 'error');
+      return;
+    }
+
     existing.push(payload);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-    localStorage.setItem('laya_last_guest_checkin', JSON.stringify(payload));
+    localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
 
-    showStatus('บันทึกแบบทดสอบในเครื่องนี้แล้ว กรุณาใส่ค่า Firebase เพื่อบันทึกเข้าระบบจริง', 'success');
+    showStatus('บันทึกข้อมูลเรียบร้อยแล้ว กำลังพาเข้าสู่เมนูร้านอาหาร...', 'success');
     form.reset();
+    redirectToMenuWithDelay();
   } catch (error) {
     console.error(error);
     showStatus('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง', 'error');
@@ -87,6 +110,37 @@ form.addEventListener('submit', async (event) => {
     setSubmitting(false);
   }
 });
+
+async function checkDuplicateRoomInFirestore(roomNo) {
+  const guestCheckinsRef = collection(db, 'guest_checkins');
+
+  const queriesToTry = [
+    query(guestCheckinsRef, where('roomNoNormalized', '==', roomNo), limit(1)),
+    query(guestCheckinsRef, where('roomNo', '==', roomNo), limit(1)),
+  ];
+
+  for (const roomQuery of queriesToTry) {
+    const snapshot = await getDocs(roomQuery);
+    if (!snapshot.empty) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function normalizeRoomNo(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, '')
+    .toUpperCase();
+}
+
+function redirectToMenuWithDelay() {
+  window.setTimeout(() => {
+    window.location.href = MENU_URL;
+  }, REDIRECT_DELAY_MS);
+}
 
 function showStatus(message, type) {
   statusBox.textContent = message;
