@@ -1,16 +1,21 @@
-# LAYA Resort Hotel Portal
+# LAYA Hotel Portal
 
-เว็บพอร์ทัลหลักของโรงแรม สำหรับรวมลิงก์และระบบของแต่ละแผนก
+หน้าแรกของเว็บสำหรับแขกกรอกชื่อและเลขห้องเพื่อบันทึกเข้าระบบ ก่อนเข้าสู่บริการต่าง ๆ ของโรงแรม
 
-## โครงสร้างหลัก
-- `index.html` หน้าแรกของโรงแรม
-- `styles.css` ไฟล์สไตล์หลัก
-- `fb/index.html` หน้าแผนก F&B
+## ไฟล์สำคัญ
+- `index.html` หน้าแรก Guest Check-in
+- `styles.css` สไตล์หน้าแรก
+- `app.js` logic บันทึกข้อมูลและเปิดเมนู F&B
+- `frontend/shared/firebase-config.js` ใส่ค่า Firebase จริง
 
-## วิธีใช้งานบน GitHub Pages
-1. อัปโหลดไฟล์ทั้งหมดขึ้น GitHub repository
-2. เปิด GitHub Pages ให้ชี้ไปที่ branch ที่ต้องการ
-3. หน้าแรกจะเริ่มที่ `index.html`
+## การเชื่อมระบบจริง
+หน้าเว็บจะบันทึกลง Firestore collection ชื่อ `guest_checkins` เมื่อใส่ค่า Firebase ใน `frontend/shared/firebase-config.js`
 
-## ลิงก์ที่เปิดใช้งานแล้ว
-- ร้านอาหาร → https://laya-resort-hotel.github.io/MENU/
+ตัวอย่างข้อมูลที่บันทึก:
+- `guestName`
+- `roomNo`
+- `consent`
+- `source`
+- `createdAt`
+
+ถ้ายังไม่ใส่ค่า Firebase ระบบจะ fallback ไปเก็บใน localStorage ของเครื่องนี้เพื่อใช้ทดสอบหน้าจอ

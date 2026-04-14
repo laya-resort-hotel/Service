@@ -1,88 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LAYA Resort Hotel Portal</title>
-  <meta name="description" content="Main portal for all hotel departments" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="site-shell">
+  <div class="page-shell">
     <header class="hero">
-      <div class="hero-badge">LAYA RESORT HOTEL</div>
-      <h1>Hotel Main Portal</h1>
-      <p class="hero-text">
-        ศูนย์รวมลิงก์และระบบหลักของโรงแรม แยกตามแผนกอย่างชัดเจน เพื่อให้พนักงานเข้าใช้งานได้ง่ายจากหน้าเดียว
-      </p>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">LAYA RESORT HOTEL</p>
+        <h1>Guest Check-in Portal</h1>
+        <p class="hero-text">
+          กรุณากรอกชื่อและเลขห้องของท่านเพื่อบันทึกเข้าระบบก่อนเข้าใช้งานบริการต่าง ๆ ของโรงแรม
+        </p>
+      </div>
     </header>
 
-    <main>
-      <section class="section-block">
-        <div class="section-head">
-          <h2>เลือกแผนก</h2>
-          <p>กดแผนกที่ต้องการเพื่อเข้าสู่ลิงก์หรือระบบของแต่ละแผนก โดยตอนนี้เปิดใช้งาน F&amp;B แล้ว</p>
+    <main class="main-grid">
+      <section class="card form-card">
+        <div class="card-head">
+          <h2>ข้อมูลผู้เข้าพัก</h2>
+          <p>ข้อมูลจะถูกบันทึกลงระบบเมื่อเชื่อมต่อ Firebase เรียบร้อยแล้ว</p>
         </div>
 
-        <div class="department-grid">
-          <a class="department-card active" href="https://laya-resort-hotel.github.io/MENU/" target="_blank" rel="noopener noreferrer">
-            <span class="department-tag">OPEN</span>
-            <h3>F&amp;B</h3>
-            <p>Food &amp; Beverage Portal</p>
-            <span class="department-link">เปิดลิงก์ F&amp;B</span>
-          </a>
+        <form id="guestForm" class="guest-form">
+          <label class="field">
+            <span>ชื่อผู้เข้าพัก</span>
+            <input id="guestName" name="guestName" type="text" placeholder="เช่น Mr. John Smith" maxlength="120" required />
+          </label>
 
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Front Office</h3>
-            <p>สำหรับระบบต้อนรับและงานหน้าฟรอนต์</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
+          <label class="field">
+            <span>เลขห้อง</span>
+            <input id="roomNo" name="roomNo" type="text" placeholder="เช่น A203" maxlength="20" required />
+          </label>
 
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Housekeeping</h3>
-            <p>สำหรับระบบห้องพักและงานแม่บ้าน</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
+          <label class="field checkbox-field">
+            <input id="consent" name="consent" type="checkbox" required />
+            <span>ยินยอมให้ระบบบันทึกข้อมูลเพื่อใช้ในการให้บริการภายในโรงแรม</span>
+          </label>
 
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Engineering</h3>
-            <p>สำหรับระบบช่างและซ่อมบำรุง</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
+          <button id="submitBtn" type="submit" class="primary-btn">บันทึกข้อมูลเข้าระบบ</button>
+        </form>
 
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Reservation</h3>
-            <p>สำหรับงานสำรองห้องพักและติดตามการจอง</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
+        <div id="statusBox" class="status-box hidden"></div>
 
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Sales &amp; Marketing</h3>
-            <p>สำหรับลิงก์งานขาย โปรโมชัน และแคมเปญ</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
-
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Recreation</h3>
-            <p>สำหรับกิจกรรมแขกและงาน recreation</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
-
-          <div class="department-card disabled">
-            <span class="department-tag soon">SOON</span>
-            <h3>Admin / Management</h3>
-            <p>สำหรับลิงก์ระบบจัดการและรายงานต่าง ๆ</p>
-            <span class="department-link">กำลังจัดเตรียม</span>
-          </div>
+        <div class="mini-actions">
+          <button id="openMenuBtn" class="secondary-btn" type="button">เข้าสู่เมนูร้านอาหาร</button>
         </div>
       </section>
+
+      <aside class="card info-card">
+        <h3>บริการที่พร้อมใช้งาน</h3>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-title">F&amp;B</span>
+            <span class="info-desc">เมนูอาหารและเครื่องดื่มของโรงแรม</span>
+          </div>
+          <div class="info-item soon">
+            <span class="info-title">Front Office</span>
+            <span class="info-desc">Coming soon</span>
+          </div>
+          <div class="info-item soon">
+            <span class="info-title">Housekeeping</span>
+            <span class="info-desc">Coming soon</span>
+          </div>
+          <div class="info-item soon">
+            <span class="info-title">Engineering</span>
+            <span class="info-desc">Coming soon</span>
+          </div>
+        </div>
+
+        <div class="note-box">
+          <h4>หมายเหตุการตั้งค่า</h4>
+          <p>
+            หากยังไม่ได้ใส่ค่า Firebase ในไฟล์ <code>firebase-config.js</code>
+            หน้าเว็บจะบันทึกแบบชั่วคราวในเครื่องนี้เท่านั้น เพื่อให้ทดสอบหน้าจอได้ก่อน
+          </p>
+        </div>
+      </aside>
     </main>
   </div>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>
