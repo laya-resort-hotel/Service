@@ -3,78 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LAYA Resort Hotel Portal</title>
+  <title>LAYA Resort Phuket · Guest Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="page-shell">
-    <header class="hero">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="page-shell luxury-shell">
+    <header class="hero hero-luxury">
       <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <p class="eyebrow">LAYA RESORT HOTEL</p>
-        <h1>Guest Portal</h1>
-        <p class="hero-text">
-          กรุณากรอกเลขห้องของท่าน ระบบจะดึงชื่อผู้เข้าพักและแพ็คเกจจากระบบ Check-in / IHN แล้วพาเข้าสู่หน้ารวมแผนกของโรงแรมโดยอัตโนมัติ
-        </p>
+      <div class="hero-glow"></div>
+      <div class="hero-content hero-grid">
+        <div class="brand-block">
+          <img src="assets/laya-logo.png" alt="Laya Resort Phuket" class="brand-logo" />
+          <p class="eyebrow">GUEST DIGITAL PORTAL</p>
+          <h1>เข้าสู่ระบบด้วยเลขห้อง</h1>
+          <p class="hero-text hero-intro">
+            กรุณากรอกเลขห้องของท่าน เพื่อดึงข้อมูลผู้เข้าพักจากระบบ Check-in ของโรงแรมโดยอัตโนมัติ แล้วเข้าสู่หน้ารวมแผนกสำหรับใช้งานบริการต่าง ๆ ภายในรีสอร์ท
+          </p>
+
+          <div class="hero-points">
+            <div class="hero-point">
+              <span class="hero-point-title">Fast Access</span>
+              <span class="hero-point-text">กรอกเพียงเลขห้องก็พร้อมใช้งาน</span>
+            </div>
+            <div class="hero-point">
+              <span class="hero-point-title">Verified Guest Data</span>
+              <span class="hero-point-text">ดึงชื่อผู้เข้าพักและแพ็กเกจจากระบบจริง</span>
+            </div>
+            <div class="hero-point">
+              <span class="hero-point-title">Luxury Service Portal</span>
+              <span class="hero-point-text">รวมลิงก์บริการสำคัญไว้ในจอเดียว</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card-frame">
+          <section class="card form-card login-card glass-panel">
+            <div class="card-head card-head-tight">
+              <span class="section-kicker">WELCOME</span>
+              <h2>Guest Check-in Access</h2>
+              <p>ใส่เฉพาะเลขห้อง เช่น A203, B1201, D108 ระบบจะค้นหาข้อมูลผู้เข้าพักให้ทันที</p>
+            </div>
+
+            <form id="guestForm" class="guest-form">
+              <label class="field">
+                <span>เลขห้อง</span>
+                <input id="roomNo" name="roomNo" type="text" placeholder="เช่น A203" maxlength="20" required />
+                <small class="field-hint">รูปแบบที่ถูกต้อง: A/B/C/D ตามด้วยตัวเลข เช่น A203, B1201, D88</small>
+              </label>
+
+              <label class="field checkbox-field consent-row">
+                <input id="consent" name="consent" type="checkbox" required />
+                <span>ยินยอมให้ระบบดึงข้อมูลผู้เข้าพักจากระบบภายในเพื่อใช้ในการให้บริการของโรงแรม</span>
+              </label>
+
+              <button id="submitBtn" type="submit" class="primary-btn luxury-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
+            </form>
+
+            <div id="statusBox" class="status-box hidden"></div>
+
+            <div class="mini-actions one-action">
+              <button id="openMenuBtn" class="secondary-btn refined-btn" type="button">เปิดเมนูร้านอาหาร</button>
+            </div>
+          </section>
+        </div>
       </div>
     </header>
 
-    <main class="main-grid">
-      <section class="card form-card">
-        <div class="card-head">
-          <h2>เข้าสู่ระบบด้วยเลขห้อง</h2>
-          <p>ใส่เฉพาะเลขห้อง เช่น A203, B1201, D108 แล้วระบบจะค้นหาข้อมูลในฐานข้อมูล Check-in ของโรงแรมให้ทันที</p>
-        </div>
-
-        <form id="guestForm" class="guest-form">
-          <label class="field">
-            <span>เลขห้อง</span>
-            <input id="roomNo" name="roomNo" type="text" placeholder="เช่น A203" maxlength="20" required />
-            <small class="field-hint">รูปแบบที่ถูกต้อง: A/B/C/D ตามด้วยตัวเลข เช่น A203, B1201, D88</small>
-          </label>
-
-          <label class="field checkbox-field">
-            <input id="consent" name="consent" type="checkbox" required />
-            <span>ยินยอมให้ระบบดึงข้อมูลผู้เข้าพักจากระบบภายในเพื่อใช้ในการให้บริการของโรงแรม</span>
-          </label>
-
-          <button id="submitBtn" type="submit" class="primary-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
-        </form>
-
-        <div id="statusBox" class="status-box hidden"></div>
-
-        <div class="mini-actions two-actions">
-          <button id="openMenuBtn" class="secondary-btn" type="button">เปิดเมนูร้านอาหาร</button>
-        </div>
-      </section>
-
-      <aside class="card info-card">
+    <main class="main-grid refined-grid">
+      <aside class="card info-card glass-panel">
         <h3>ระบบที่เชื่อมต่อ</h3>
         <div class="info-list">
           <div class="info-item active-dept">
-            <span class="info-title">IHN / Check-in Sync</span>
-            <span class="info-desc">ค้นหาจากเลขห้องใน Firestore collection <code>guest_daily</code> แล้วดึงชื่อผู้เข้าพัก, จำนวนผู้เข้าพัก และแพ็คเกจมาใช้ทันที</span>
+            <span class="info-title">IHN / Check-in Data</span>
+            <span class="info-desc">ค้นหาจาก Firestore collection <code>guest_daily</code> เพื่อดึงชื่อผู้เข้าพัก แพ็กเกจ และจำนวนผู้เข้าพักแบบทันที</span>
           </div>
           <div class="info-item active-dept">
             <span class="info-title">Departments Portal</span>
-            <span class="info-desc">หลังเข้าสู่ระบบสำเร็จ จะพาไปหน้ารวมแผนกและแสดงข้อมูลผู้เข้าพักล่าสุดบนอุปกรณ์นี้</span>
+            <span class="info-desc">หลังเข้าสู่ระบบสำเร็จ ระบบจะพาไปหน้ารวมแผนกและจดจำข้อมูลผู้เข้าพักล่าสุดบนอุปกรณ์นี้</span>
           </div>
           <div class="info-item soon">
-            <span class="info-title">F&amp;B</span>
-            <span class="info-desc">พร้อมใช้งานจากหน้ารวมแผนก</span>
+            <span class="info-title">Luxury Digital Journey</span>
+            <span class="info-desc">ออกแบบให้ใช้งานง่ายบนมือถือและคงภาพลักษณ์พรีเมียมของรีสอร์ท</span>
           </div>
         </div>
-
-        <div class="note-box">
-          <h4>การใช้งาน</h4>
-          <p>
-            กรอกเลขห้องของท่านเพื่อเข้าสู่หน้ารวมแผนกของโรงแรม ระบบจะดึงชื่อผู้เข้าพัก แพ็กเกจ และจำนวนผู้เข้าพักจากระบบ Check-in โดยอัตโนมัติ
-          </p>
-        </div>
       </aside>
+
+      <section class="card note-box glass-panel service-note">
+        <h3>หมายเหตุการใช้งาน</h3>
+        <p>
+          เมื่อระบบพบข้อมูลห้องของท่านแล้ว จะเข้าสู่หน้ารวมแผนกโดยอัตโนมัติ พร้อมแสดงชื่อผู้เข้าพัก เลขห้อง แพ็กเกจ และจำนวนผู้เข้าพักล่าสุด เพื่อให้ใช้งานบริการของโรงแรมได้สะดวกยิ่งขึ้น
+        </p>
+        <div class="service-tags">
+          <span class="service-tag">Guest Name</span>
+          <span class="service-tag">Package</span>
+          <span class="service-tag">PAX</span>
+          <span class="service-tag">Department Access</span>
+        </div>
+      </section>
     </main>
   </div>
 
