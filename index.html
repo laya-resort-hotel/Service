@@ -15,7 +15,7 @@
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <p class="eyebrow">LAYA RESORT HOTEL</p>
-        <h1>Guest Portal Login</h1>
+        <h1>Guest Portal</h1>
         <p class="hero-text">
           กรุณากรอกเลขห้องของท่าน ระบบจะดึงชื่อผู้เข้าพักและแพ็คเกจจากระบบ Check-in / IHN แล้วพาเข้าสู่หน้ารวมแผนกของโรงแรมโดยอัตโนมัติ
         </p>
@@ -42,20 +42,11 @@
           </label>
 
           <button id="submitBtn" type="submit" class="primary-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
-          <button id="testGuestDailyBtn" type="button" class="secondary-btn wide-btn">Test guest_daily / Debug การค้นหา</button>
         </form>
 
         <div id="statusBox" class="status-box hidden"></div>
-        <details class="debug-panel" id="debugPanel">
-          <summary>ดูข้อมูล debug</summary>
-          <div class="debug-actions">
-            <button id="clearDebugBtn" type="button" class="ghost-btn">ล้าง debug</button>
-          </div>
-          <pre id="debugOutput" class="debug-output">ยังไม่มีข้อมูล debug</pre>
-        </details>
 
         <div class="mini-actions two-actions">
-          <button id="openPortalBtn" class="secondary-btn" type="button">เข้าสู่หน้ารวมแผนก</button>
           <button id="openMenuBtn" class="secondary-btn" type="button">เปิดเมนูร้านอาหาร</button>
         </div>
       </section>
@@ -78,10 +69,9 @@
         </div>
 
         <div class="note-box">
-          <h4>สิ่งที่ต้องตั้งค่าก่อนใช้งานจริง</h4>
+          <h4>การใช้งาน</h4>
           <p>
-            ใส่ค่า Firebase เดียวกับระบบ Check-in ลงในไฟล์ <code>frontend/shared/firebase-config.js</code>
-            และเปิด Anonymous Auth เพื่อให้หน้าเว็บนี้อ่านข้อมูล <code>guest_daily</code> ได้
+            กรอกเลขห้องของท่านเพื่อเข้าสู่หน้ารวมแผนกของโรงแรม ระบบจะดึงชื่อผู้เข้าพัก แพ็กเกจ และจำนวนผู้เข้าพักจากระบบ Check-in โดยอัตโนมัติ
           </p>
         </div>
       </aside>

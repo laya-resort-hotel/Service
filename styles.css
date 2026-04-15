@@ -422,3 +422,8 @@ code {
   line-height: 1.45;
   background: rgba(0, 0, 0, 0.22);
 }
+
+
+.wide-btn { width: 100%; }
+
+.mini-actions { display: grid; grid-template-columns: 1fr; }

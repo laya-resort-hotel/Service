@@ -27,11 +27,6 @@ const consentInput = document.getElementById('consent');
 const submitBtn = document.getElementById('submitBtn');
 const statusBox = document.getElementById('statusBox');
 const openMenuBtn = document.getElementById('openMenuBtn');
-const openPortalBtn = document.getElementById('openPortalBtn');
-const testGuestDailyBtn = document.getElementById('testGuestDailyBtn');
-const clearDebugBtn = document.getElementById('clearDebugBtn');
-const debugOutput = document.getElementById('debugOutput');
-const debugPanel = document.getElementById('debugPanel');
 
 let db = null;
 let auth = null;
@@ -56,20 +51,6 @@ try {
 openMenuBtn.addEventListener('click', () => {
   window.location.href = MENU_URL;
 });
-
-openPortalBtn.addEventListener('click', () => {
-  window.location.href = DEPARTMENTS_URL;
-});
-
-if (testGuestDailyBtn) {
-  testGuestDailyBtn.addEventListener('click', (event) => runGuestDailyDebug(event));
-}
-
-if (clearDebugBtn) {
-  clearDebugBtn.addEventListener('click', () => {
-    debugOutput.textContent = 'ยังไม่มีข้อมูล debug';
-  });
-}
 
 roomNoInput.addEventListener('input', () => {
   roomNoInput.value = normalizeRoomNo(roomNoInput.value);
@@ -104,7 +85,6 @@ form.addEventListener('submit', async (event) => {
     const guestRecord = await findGuestDailyRecordByRoom(roomNo);
     if (!guestRecord) {
       showStatus(`ไม่พบข้อมูลห้อง ${roomNo} ในระบบ Check-in / IHN วันนี้หรือข้อมูลล่าสุด กรุณาติดต่อพนักงานโรงแรม`, 'error');
-      await runGuestDailyDebug(roomNo);
       return;
     }
 
@@ -137,9 +117,9 @@ form.addEventListener('submit', async (event) => {
     console.error(error);
     const message = String(error?.message || error || '');
     if (isPermissionError(error)) {
-      showStatus('ระบบเชื่อม Firebase ได้ แต่ยังไม่มีสิทธิ์อ่าน guest_daily หรือ auth ยังไม่พร้อม กรุณาเช็ก Anonymous Auth, Firestore Rules และลองรีเฟรชหน้าเว็บอีกครั้ง', 'error');
+      showStatus('ไม่สามารถเชื่อมต่อข้อมูลห้องพักได้ในขณะนี้ กรุณารีเฟรชหน้าเว็บหรือติดต่อพนักงานโรงแรม', 'error');
     } else {
-      showStatus(`เกิดข้อผิดพลาดในการดึงข้อมูลจากระบบ Check-in: ${message || 'กรุณาลองใหม่อีกครั้ง'}`, 'error');
+      showStatus('เกิดข้อผิดพลาดในการค้นหาข้อมูลห้องพัก กรุณาลองใหม่อีกครั้งหรือติดต่อพนักงานโรงแรม', 'error');
     }
   } finally {
     setSubmitting(false);
