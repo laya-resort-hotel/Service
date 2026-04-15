@@ -62,7 +62,7 @@ openPortalBtn.addEventListener('click', () => {
 });
 
 if (testGuestDailyBtn) {
-  testGuestDailyBtn.addEventListener('click', runGuestDailyDebug);
+  testGuestDailyBtn.addEventListener('click', (event) => runGuestDailyDebug(event));
 }
 
 if (clearDebugBtn) {
@@ -430,6 +430,11 @@ function getBangkokDateKey() {
 
 async function runGuestDailyDebug(roomOverride = '') {
   if (debugPanel) debugPanel.open = true;
+
+  if (roomOverride && typeof roomOverride === 'object' && 'preventDefault' in roomOverride) {
+    try { roomOverride.preventDefault(); } catch (_) {}
+    roomOverride = '';
+  }
 
   const roomNo = normalizeRoomNo(roomOverride || roomNoInput.value);
   const lines = [];
