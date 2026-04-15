@@ -12,12 +12,22 @@
 <body>
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
+
+  <div id="loadingOverlay" class="hero-loading hidden">
+    <div class="loader-panel">
+      <img src="assets/laya-logo.png" alt="Laya Resort Phuket" class="loader-logo" />
+      <div class="spinner"></div>
+      <h3>กำลังตรวจสอบข้อมูลผู้เข้าพัก</h3>
+      <p>กรุณารอสักครู่ ระบบกำลังค้นหาข้อมูลห้องของท่านจากฐานข้อมูลโรงแรม</p>
+    </div>
+  </div>
+
   <div class="page-shell luxury-shell">
-    <header class="hero hero-luxury">
+    <header class="hero hero-luxury fade-up">
       <div class="hero-overlay"></div>
       <div class="hero-glow"></div>
       <div class="hero-content hero-grid">
-        <div class="brand-block">
+        <div class="brand-block fade-up delay-1">
           <img src="assets/laya-logo.png" alt="Laya Resort Phuket" class="brand-logo" />
           <p class="eyebrow">GUEST DIGITAL PORTAL</p>
           <h1>เข้าสู่ระบบด้วยเลขห้อง</h1>
@@ -26,23 +36,23 @@
           </p>
 
           <div class="hero-points">
-            <div class="hero-point">
+            <div class="hero-point fade-up delay-2">
               <span class="hero-point-title">Fast Access</span>
               <span class="hero-point-text">กรอกเพียงเลขห้องก็พร้อมใช้งาน</span>
             </div>
-            <div class="hero-point">
+            <div class="hero-point fade-up delay-3">
               <span class="hero-point-title">Verified Guest Data</span>
               <span class="hero-point-text">ดึงชื่อผู้เข้าพักและแพ็กเกจจากระบบจริง</span>
             </div>
-            <div class="hero-point">
+            <div class="hero-point fade-up delay-4">
               <span class="hero-point-title">Luxury Service Portal</span>
               <span class="hero-point-text">รวมลิงก์บริการสำคัญไว้ในจอเดียว</span>
             </div>
           </div>
         </div>
 
-        <div class="hero-card-frame">
-          <section class="card form-card login-card glass-panel">
+        <div class="hero-card-frame fade-up delay-2">
+          <section class="card login-card glass-panel">
             <div class="card-head card-head-tight">
               <span class="section-kicker">WELCOME</span>
               <h2>Guest Check-in Access</h2>
@@ -56,12 +66,12 @@
                 <small class="field-hint">รูปแบบที่ถูกต้อง: A/B/C/D ตามด้วยตัวเลข เช่น A203, B1201, D88</small>
               </label>
 
-              <label class="field checkbox-field consent-row">
+              <label class="field consent-row">
                 <input id="consent" name="consent" type="checkbox" required />
                 <span>ยินยอมให้ระบบดึงข้อมูลผู้เข้าพักจากระบบภายในเพื่อใช้ในการให้บริการของโรงแรม</span>
               </label>
 
-              <button id="submitBtn" type="submit" class="primary-btn luxury-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
+              <button id="submitBtn" type="submit" class="primary-btn">ค้นหาข้อมูลและเข้าสู่ระบบ</button>
             </form>
 
             <div id="statusBox" class="status-box hidden"></div>
@@ -74,8 +84,8 @@
       </div>
     </header>
 
-    <main class="main-grid refined-grid">
-      <aside class="card info-card glass-panel">
+    <main class="main-grid refined-grid fade-up delay-3">
+      <aside class="card glass-panel">
         <h3>ระบบที่เชื่อมต่อ</h3>
         <div class="info-list">
           <div class="info-item active-dept">
@@ -84,24 +94,24 @@
           </div>
           <div class="info-item active-dept">
             <span class="info-title">Departments Portal</span>
-            <span class="info-desc">หลังเข้าสู่ระบบสำเร็จ ระบบจะพาไปหน้ารวมแผนกและจดจำข้อมูลผู้เข้าพักล่าสุดบนอุปกรณ์นี้</span>
+            <span class="info-desc">หลังเข้าสู่ระบบสำเร็จ ระบบจะพาไปหน้ารวมแผนกและสร้าง QR Code ของห้องไว้ให้ใช้งานทันที</span>
           </div>
           <div class="info-item soon">
-            <span class="info-title">Luxury Digital Journey</span>
-            <span class="info-desc">ออกแบบให้ใช้งานง่ายบนมือถือและคงภาพลักษณ์พรีเมียมของรีสอร์ท</span>
+            <span class="info-title">Premium Experience</span>
+            <span class="info-desc">ออกแบบเพื่อการใช้งานบนมือถือที่รวดเร็ว พร้อมภาพลักษณ์หรูในมาตรฐานเดียวกันทั้งระบบ</span>
           </div>
         </div>
       </aside>
 
       <section class="card note-box glass-panel service-note">
-        <h3>หมายเหตุการใช้งาน</h3>
+        <h3>สิ่งที่จะได้รับหลังเข้าสู่ระบบ</h3>
         <p>
-          เมื่อระบบพบข้อมูลห้องของท่านแล้ว จะเข้าสู่หน้ารวมแผนกโดยอัตโนมัติ พร้อมแสดงชื่อผู้เข้าพัก เลขห้อง แพ็กเกจ และจำนวนผู้เข้าพักล่าสุด เพื่อให้ใช้งานบริการของโรงแรมได้สะดวกยิ่งขึ้น
+          เมื่อระบบพบข้อมูลห้องของท่านแล้ว ระบบจะสร้าง QR Code ประจำห้อง แสดงชื่อผู้เข้าพัก แพ็กเกจ จำนวนผู้เข้าพัก และพาเข้าสู่หน้ารวมแผนกเพื่อใช้งานบริการต่าง ๆ ภายในรีสอร์ทได้ทันที
         </p>
         <div class="service-tags">
+          <span class="service-tag">Room QR</span>
           <span class="service-tag">Guest Name</span>
-          <span class="service-tag">Package</span>
-          <span class="service-tag">PAX</span>
+          <span class="service-tag">Package Welcome</span>
           <span class="service-tag">Department Access</span>
         </div>
       </section>

@@ -1,13 +1,12 @@
-# LAYA Service Portal (Production)
+# LAYA Service Portal · Moringcard Luxury
 
-Production-ready guest portal for LAYA Resort Hotel.
+เวอร์ชันนี้ประกอบด้วย
+- Luxury login page
+- Loading animation ระหว่างค้นหาห้อง
+- Departments landing page
+- Welcome card ตาม package (RO / RB / HB / BB / FB)
+- QR code ประจำห้องหลัง login สำเร็จ
+- หน้า Front Office / Housekeeping / Engineering ในมาตรฐานเดียวกัน
 
-## Included
-- Guest room login page
-- Department portal page
-- F&B shortcut to the hotel menu
-- Firebase config for moringcard
-
-## Notes
-- Reads guest data from `guest_daily`
-- Stores guest portal login entries in `guest_portal_sessions`
+## Deploy
+อัปโหลดไฟล์ทั้งหมดในโฟลเดอร์นี้ขึ้น GitHub Pages ของ Service

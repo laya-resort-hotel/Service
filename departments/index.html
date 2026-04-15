@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LAYA Resort Phuket · Departments Portal</title>
+  <title>LAYA Resort Phuket · Departments</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,30 +13,59 @@
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
   <div class="page-shell luxury-shell">
-    <header class="hero compact-hero hero-luxury departments-hero">
+    <header class="hero compact-hero fade-up">
       <div class="hero-overlay"></div>
       <div class="hero-glow"></div>
-      <div class="hero-content hero-grid hero-grid-compact">
+      <div class="hero-content hero-grid-compact">
         <div class="brand-block">
           <img src="../assets/laya-logo.png" alt="Laya Resort Phuket" class="brand-logo brand-logo-small" />
           <p class="eyebrow">LAYA RESORT HOTEL</p>
           <h1>หน้ารวมแผนก</h1>
-          <p id="welcomeText" class="hero-text">
-            กรุณาเลือกแผนกที่ต้องการใช้งาน
-          </p>
+          <p id="welcomeText" class="hero-text">กรุณาเข้าสู่ระบบด้วยเลขห้องก่อนใช้งาน</p>
         </div>
       </div>
     </header>
 
-    <main class="departments-layout polished-layout">
-      <section class="card departments-card glass-panel full-width">
-        <div class="card-head with-inline-action">
+    <main class="departments-layout polished-layout fade-up delay-2">
+      <section class="card departments-card glass-panel full-width section-stack">
+        <div class="qr-section">
+          <div class="card-head with-inline-action">
+            <div>
+              <span class="section-kicker">GUEST ACCESS</span>
+              <h2>QR ห้องพักและข้อมูลต้อนรับ</h2>
+              <p>ใช้ QR Code นี้เป็นข้อมูลอ้างอิงเลขห้องของท่านในการติดต่อหรือใช้งานบริการต่าง ๆ ภายในรีสอร์ท</p>
+            </div>
+            <a class="secondary-btn as-link refined-btn" href="../index.html">กลับหน้าล็อกอิน</a>
+          </div>
+
+          <div class="grid-two">
+            <div class="qr-card glass-panel">
+              <div class="qr-box"><div id="roomQrCanvas"></div></div>
+              <div class="qr-meta">
+                <h3 id="qrGuestTitle">Guest Room QR</h3>
+                <p id="qrGuestDesc">ระบบจะสร้าง QR Code หลังเข้าสู่ระบบสำเร็จ</p>
+                <span id="qrCodeText" class="qr-code-text">-</span>
+                <div class="summary-actions">
+                  <button id="downloadQrBtn" class="secondary-btn refined-btn" type="button">บันทึก QR</button>
+                  <button id="copyRoomBtn" class="ghost-btn" type="button">คัดลอกเลขห้อง</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="welcomeCard" class="welcome-card package-ro">
+              <span id="welcomeLabel" class="welcome-label">WELCOME PACKAGE</span>
+              <h3 id="welcomeHeadline">ยินดีต้อนรับสู่ LAYA Resort Phuket</h3>
+              <p id="welcomeBody">หลังเข้าสู่ระบบสำเร็จ ระบบจะแสดงข้อมูลห้องพักและแพ็กเกจของท่าน พร้อมลิงก์เข้าสู่บริการแต่ละแผนก</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-head">
           <div>
             <span class="section-kicker">DEPARTMENTS</span>
             <h2>เลือกแผนก</h2>
-            <p>รวมลิงก์สำคัญของแต่ละแผนกไว้ในหน้าเดียว เพื่อให้ใช้งานต่อได้สะดวกและชัดเจน</p>
+            <p>รวมลิงก์สำคัญของแต่ละแผนกไว้ในหน้าเดียว เพื่อให้ใช้งานต่อได้สะดวกและอยู่ในมาตรฐานการออกแบบเดียวกัน</p>
           </div>
-          <a class="secondary-btn as-link refined-btn" href="../index.html">กลับหน้าล็อกอิน</a>
         </div>
 
         <div class="department-grid luxury-tiles">
@@ -47,52 +76,66 @@
             <span class="tile-link">เปิดระบบร้านอาหาร</span>
           </a>
 
-          <button class="department-tile soon" type="button" disabled>
-            <span class="tile-badge">Soon</span>
+          <a class="department-tile active" href="./front-office.html">
+            <span class="tile-badge">Portal</span>
             <h3>Front Office</h3>
-            <p>บริการต้อนรับ ข้อมูลแขก และงานด้านการเข้าพักหน้าฟรอนต์</p>
-            <span class="tile-link">กำลังเตรียมระบบ</span>
-          </button>
+            <p>บริการต้อนรับ ข้อมูลการเข้าพัก และข้อมูลติดต่อสำคัญระหว่างเข้าพัก</p>
+            <span class="tile-link">เปิดหน้า Front Office</span>
+          </a>
 
-          <button class="department-tile soon" type="button" disabled>
-            <span class="tile-badge">Soon</span>
+          <a class="department-tile active" href="./housekeeping.html">
+            <span class="tile-badge">Portal</span>
             <h3>Housekeeping</h3>
-            <p>บริการดูแลห้องพัก ความสะอาด และงานสนับสนุนภายในอาคาร</p>
-            <span class="tile-link">กำลังเตรียมระบบ</span>
-          </button>
+            <p>ข้อมูลบริการทำความสะอาด สิ่งอำนวยความสะดวกในห้อง และคำขอเพิ่มเติม</p>
+            <span class="tile-link">เปิดหน้า Housekeeping</span>
+          </a>
 
-          <button class="department-tile soon" type="button" disabled>
-            <span class="tile-badge">Soon</span>
+          <a class="department-tile active" href="./engineering.html">
+            <span class="tile-badge">Portal</span>
             <h3>Engineering</h3>
-            <p>งานวิศวกรรม แจ้งซ่อม และการดูแลระบบสาธารณูปโภคของโรงแรม</p>
-            <span class="tile-link">กำลังเตรียมระบบ</span>
-          </button>
+            <p>ข้อมูลแจ้งซ่อม บริการช่วยเหลือด้านอุปกรณ์ และงานวิศวกรรมภายในห้องพัก</p>
+            <span class="tile-link">เปิดหน้า Engineering</span>
+          </a>
         </div>
       </section>
 
       <aside class="card summary-card glass-panel">
         <h3>ข้อมูลผู้เข้าพักล่าสุด</h3>
-        <div id="guestSummary" class="summary-list empty-state">
-          ยังไม่พบข้อมูลการเข้าสู่ระบบล่าสุดในอุปกรณ์นี้
-        </div>
+        <div id="guestSummary" class="summary-list empty-state">ยังไม่พบข้อมูลการเข้าสู่ระบบล่าสุดในอุปกรณ์นี้</div>
       </aside>
     </main>
   </div>
 
-  <script>
+  <script type="module">
+    import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm';
+
     const last = localStorage.getItem('laya_last_guest_checkin');
     const welcomeText = document.getElementById('welcomeText');
     const guestSummary = document.getElementById('guestSummary');
+    const qrGuestTitle = document.getElementById('qrGuestTitle');
+    const qrGuestDesc = document.getElementById('qrGuestDesc');
+    const qrCodeText = document.getElementById('qrCodeText');
+    const qrCanvasWrap = document.getElementById('roomQrCanvas');
+    const welcomeCard = document.getElementById('welcomeCard');
+    const welcomeLabel = document.getElementById('welcomeLabel');
+    const welcomeHeadline = document.getElementById('welcomeHeadline');
+    const welcomeBody = document.getElementById('welcomeBody');
+    const downloadQrBtn = document.getElementById('downloadQrBtn');
+    const copyRoomBtn = document.getElementById('copyRoomBtn');
+
+    let currentQrCanvas = null;
+    let roomNo = '';
 
     if (last) {
       try {
         const data = JSON.parse(last);
         const guestName = (data.guestName || '').trim();
-        const roomNo = (data.roomNo || '').trim();
+        roomNo = (data.roomNo || '').trim();
         const packageName = (data.packageName || '-').trim();
         const pax = data.pax ?? '-';
         const businessDate = (data.businessDate || '').trim();
         const syncedAt = data.syncedAtISO ? new Date(data.syncedAtISO).toLocaleString('th-TH') : '-';
+        const roomQrValue = data.roomQrValue || `LAYA|ROOM|${roomNo || '-'}`;
 
         if (guestName || roomNo) {
           welcomeText.textContent = `ยินดีต้อนรับ ${guestName || 'Guest'}${roomNo ? ` · ห้อง ${roomNo}` : ''}${packageName ? ` · Package ${packageName}` : ''} กรุณาเลือกแผนกที่ต้องการใช้งาน`;
@@ -100,16 +143,78 @@
           guestSummary.innerHTML = `
             <div class="summary-row"><span>ชื่อผู้เข้าพัก</span><strong>${guestName || '-'}</strong></div>
             <div class="summary-row"><span>เลขห้อง</span><strong>${roomNo || '-'}</strong></div>
-            <div class="summary-row"><span>แพ็คเกจ</span><strong>${packageName || '-'}</strong></div>
+            <div class="summary-row"><span>แพ็กเกจ</span><strong>${packageName || '-'}</strong></div>
             <div class="summary-row"><span>จำนวนผู้เข้าพัก</span><strong>${pax || '-'}</strong></div>
             <div class="summary-row"><span>Business Date</span><strong>${businessDate || '-'}</strong></div>
             <div class="summary-row"><span>ซิงก์ล่าสุด</span><strong>${syncedAt}</strong></div>
           `;
+
+          qrGuestTitle.textContent = `${guestName || 'Guest'} · ห้อง ${roomNo || '-'}`;
+          qrGuestDesc.textContent = `QR Code นี้มีข้อมูลเลขห้องของท่าน เพื่อใช้เป็นรหัสอ้างอิงในการให้บริการภายในโรงแรม`;
+          qrCodeText.textContent = roomQrValue;
+          renderQr(roomQrValue);
+          applyPackageTheme(packageName, guestName, roomNo);
         }
       } catch (error) {
         console.error('Unable to parse last guest checkin:', error);
       }
     }
+
+    async function renderQr(text) {
+      const canvas = document.createElement('canvas');
+      await QRCode.toCanvas(canvas, text, {
+        width: 112,
+        margin: 1,
+        color: { dark: '#0e1a17', light: '#ffffff' },
+      });
+      qrCanvasWrap.innerHTML = '';
+      qrCanvasWrap.appendChild(canvas);
+      currentQrCanvas = canvas;
+    }
+
+    function applyPackageTheme(packageName, guestName, roomNo) {
+      const pkg = String(packageName || '').toUpperCase();
+      const safeGuest = guestName || 'แขกผู้เข้าพัก';
+      const roomText = roomNo ? `ห้อง ${roomNo}` : 'ห้องของท่าน';
+      welcomeCard.classList.remove('package-ro', 'package-rb', 'package-hb', 'package-bb', 'package-fb');
+
+      if (pkg === 'RB') {
+        welcomeCard.classList.add('package-rb');
+        welcomeLabel.textContent = 'ROOM WITH BREAKFAST';
+        welcomeHeadline.textContent = `สวัสดี ${safeGuest}`;
+        welcomeBody.textContent = `${roomText} อยู่ในแพ็กเกจ RB พร้อมสิทธิ์อาหารเช้าภายในรีสอร์ท กรุณาติดต่อทีมบริการหรือเลือกแผนกที่ต้องการใช้งานต่อได้ทันที`;
+      } else if (['HB', 'BB', 'FB'].includes(pkg)) {
+        welcomeCard.classList.add(`package-${pkg.toLowerCase()}`);
+        welcomeLabel.textContent = `${pkg} PACKAGE`;
+        welcomeHeadline.textContent = `ยินดีต้อนรับ ${safeGuest}`;
+        welcomeBody.textContent = `${roomText} ใช้งานภายใต้แพ็กเกจ ${pkg} กรุณาเลือกแผนกเพื่อดูบริการที่เกี่ยวข้องกับการเข้าพักของท่านในวันนี้`;
+      } else {
+        welcomeCard.classList.add('package-ro');
+        welcomeLabel.textContent = 'ROOM ONLY';
+        welcomeHeadline.textContent = `ยินดีต้อนรับ ${safeGuest}`;
+        welcomeBody.textContent = `${roomText} อยู่ในแพ็กเกจ RO กรุณาเลือกแผนกที่ต้องการใช้งาน และสามารถเปิดเมนูร้านอาหารเพื่อดูบริการอาหารและเครื่องดื่มเพิ่มเติมได้ทันที`;
+      }
+    }
+
+    downloadQrBtn.addEventListener('click', () => {
+      if (!currentQrCanvas || !roomNo) return;
+      const link = document.createElement('a');
+      link.download = `LAYA-${roomNo}-QR.png`;
+      link.href = currentQrCanvas.toDataURL('image/png');
+      link.click();
+    });
+
+    copyRoomBtn.addEventListener('click', async () => {
+      if (!roomNo) return;
+      try {
+        await navigator.clipboard.writeText(roomNo);
+        copyRoomBtn.textContent = 'คัดลอกแล้ว';
+        setTimeout(() => copyRoomBtn.textContent = 'คัดลอกเลขห้อง', 1400);
+      } catch (_) {
+        copyRoomBtn.textContent = roomNo;
+        setTimeout(() => copyRoomBtn.textContent = 'คัดลอกเลขห้อง', 1400);
+      }
+    });
   </script>
 </body>
 </html>

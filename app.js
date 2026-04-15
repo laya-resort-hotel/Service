@@ -15,7 +15,6 @@ import { firebaseWebConfig } from './frontend/shared/firebase-config.js';
 const MENU_URL = 'https://laya-resort-hotel.github.io/MENU/';
 const DEPARTMENTS_URL = './departments/index.html';
 const LAST_CHECKIN_KEY = 'laya_last_guest_checkin';
-const REDIRECT_DELAY_MS = 1200;
 const ROOM_PATTERN = /^[ABCD]\d+$/;
 const GUEST_DAILY_COLLECTION = 'guest_daily';
 const LOGIN_LOG_COLLECTION = 'guest_portal_sessions';
@@ -27,6 +26,7 @@ const consentInput = document.getElementById('consent');
 const submitBtn = document.getElementById('submitBtn');
 const statusBox = document.getElementById('statusBox');
 const openMenuBtn = document.getElementById('openMenuBtn');
+const loadingOverlay = document.getElementById('loadingOverlay');
 
 let db = null;
 let auth = null;
@@ -73,11 +73,11 @@ form.addEventListener('submit', async (event) => {
   }
 
   if (!firebaseReady || !db || !auth) {
-    showStatus('ยังไม่ได้เชื่อม Firebase ของระบบ Check-in กรุณาใส่ค่าใน firebase-config.js ก่อนใช้งานจริง', 'error');
+    showStatus('ยังไม่ได้เชื่อม Firebase ของระบบ Check-in กรุณาตรวจสอบไฟล์ firebase-config.js ก่อนใช้งานจริง', 'error');
     return;
   }
 
-  setSubmitting(true);
+  setSubmitting(true, 'กำลังตรวจสอบข้อมูลห้องพัก...');
 
   try {
     await ensureAnonymousAuth(true);
@@ -89,6 +89,7 @@ form.addEventListener('submit', async (event) => {
     }
 
     const payload = buildGuestSessionPayload(roomNo, guestRecord);
+    payload.roomQrValue = `LAYA|ROOM|${payload.roomNo}`;
 
     localStorage.setItem(LAST_CHECKIN_KEY, JSON.stringify(payload));
 
@@ -102,20 +103,21 @@ form.addEventListener('submit', async (event) => {
       sourceDocId: payload.sourceDocId,
       sourceCollection: GUEST_DAILY_COLLECTION,
       loginMode: 'room_lookup_direct',
+      roomQrValue: payload.roomQrValue,
       createdAt: serverTimestamp(),
       createdAtISO: payload.syncedAtISO,
     });
 
     showStatus(
-      `พบข้อมูลห้อง ${payload.roomNo} · ${payload.guestName || 'Guest'} · Package ${payload.packageName || '-'} กำลังเข้าสู่หน้ารวมแผนก...`,
+      `ยินดีต้อนรับ ${payload.guestName || 'Guest'} · ห้อง ${payload.roomNo} · Package ${payload.packageName || '-'} กำลังเข้าสู่หน้ารวมแผนก...`,
       'success'
     );
 
-    form.reset();
-    redirectToDepartmentsWithDelay();
+    setTimeout(() => {
+      window.location.href = DEPARTMENTS_URL;
+    }, 1100);
   } catch (error) {
     console.error(error);
-    const message = String(error?.message || error || '');
     if (isPermissionError(error)) {
       showStatus('ไม่สามารถเชื่อมต่อข้อมูลห้องพักได้ในขณะนี้ กรุณารีเฟรชหน้าเว็บหรือติดต่อพนักงานโรงแรม', 'error');
     } else {
@@ -132,9 +134,7 @@ async function bootstrapAnonymousAuth() {
   if (auth.currentUser) {
     try {
       await auth.currentUser.getIdToken(true);
-    } catch (_) {
-      // ignore token refresh error and continue with current user state
-    }
+    } catch (_) {}
     return auth.currentUser;
   }
 
@@ -143,9 +143,7 @@ async function bootstrapAnonymousAuth() {
   if (result?.user) {
     try {
       await result.user.getIdToken(true);
-    } catch (_) {
-      // ignore token refresh error
-    }
+    } catch (_) {}
   }
   await sleep(250);
   return auth.currentUser || result.user;
@@ -153,399 +151,129 @@ async function bootstrapAnonymousAuth() {
 
 async function ensureAnonymousAuth(forceRefresh = false) {
   if (!auth) throw new Error('auth_not_ready');
-
-  if (authBootstrapPromise) {
-    await authBootstrapPromise;
-  }
-
+  if (authBootstrapPromise) await authBootstrapPromise;
   let user = auth.currentUser;
-
   if (!user) {
     user = await bootstrapAnonymousAuth();
     authBootstrapPromise = Promise.resolve(user);
   }
-
-  if (!user) {
-    throw new Error('anonymous_auth_failed');
+  if (!user) throw new Error('auth_not_ready');
+  if (forceRefresh && user.getIdToken) {
+    try { await user.getIdToken(true); } catch (_) {}
   }
-
-  try {
-    await user.getIdToken(forceRefresh);
-  } catch (_) {
-    // Continue and retry bootstrap once below
-  }
-
-  if (!auth.currentUser) {
-    user = await bootstrapAnonymousAuth();
-    authBootstrapPromise = Promise.resolve(user);
-  }
-
-  await waitForAuthStateReady();
-  await sleep(150);
-
-  return auth.currentUser || user;
+  await sleep(180);
+  return user;
 }
 
-function waitForAuthStateReady(timeoutMs = AUTH_WAIT_MS) {
-  return new Promise((resolve) => {
-    if (!auth) {
-      resolve(null);
-      return;
-    }
-
-    let settled = false;
-    const timer = window.setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      try { unsubscribe(); } catch (_) {}
-      resolve(auth.currentUser || null);
-    }, timeoutMs);
-
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (user) => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(timer);
+function waitForAuthStateReady() {
+  return new Promise((resolve, reject) => {
+    if (!auth) return reject(new Error('auth_not_ready'));
+    if (auth.currentUser) return resolve(auth.currentUser);
+    const timeout = setTimeout(() => { unsubscribe(); reject(new Error('auth_state_timeout')); }, AUTH_WAIT_MS);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        clearTimeout(timeout);
         unsubscribe();
-        resolve(user || null);
-      },
-      () => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(timer);
-        try { unsubscribe(); } catch (_) {}
-        resolve(auth.currentUser || null);
+        resolve(user);
       }
-    );
+    });
   });
 }
 
-async function getDocsWithAuthRetry(firestoreQuery) {
-  try {
-    await ensureAnonymousAuth(false);
-    return await getDocs(firestoreQuery);
-  } catch (error) {
-    if (!isPermissionError(error)) throw error;
-    await ensureAnonymousAuth(true);
-    await sleep(250);
-    return await getDocs(firestoreQuery);
+async function findGuestDailyRecordByRoom(roomNo) {
+  const variants = buildRoomVariants(roomNo);
+  const fieldsToTry = ['room_no', 'roomNo', 'room', 'Room', 'roomNormalized', 'room_no_normalized'];
+
+  for (const fieldName of fieldsToTry) {
+    for (const value of variants) {
+      const result = await tryQuery(fieldName, value);
+      if (result) return result;
+    }
   }
+
+  const samples = await getDocs(query(collection(db, GUEST_DAILY_COLLECTION), limit(200)));
+  for (const snap of samples.docs) {
+    const data = snap.data() || {};
+    const candidate = normalizeRoomNo(data.room_no || data.roomNo || data.room || data.Room || data.roomNormalized || '');
+    if (candidate && variants.includes(candidate)) {
+      return { id: snap.id, data };
+    }
+  }
+  return null;
 }
 
-async function findGuestDailyRecordByRoom(roomNo) {
-  await ensureAnonymousAuth(false);
-
-  const roomFields = ['room', 'room_no', 'roomNo', 'roomNormalized', 'roomNoNormalized', 'Room'];
-  const roomVariants = buildRoomVariants(roomNo);
-  const results = new Map();
-  let hadPermissionError = false;
-
-  for (const fieldName of roomFields) {
-    for (const roomVariant of roomVariants) {
-      try {
-        const roomQuery = query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', roomVariant), limit(20));
-        const snapshot = await getDocsWithAuthRetry(roomQuery);
-        snapshot.forEach((docSnap) => {
-          if (!results.has(docSnap.id)) {
-            results.set(docSnap.id, { id: docSnap.id, ...docSnap.data() });
-          }
-        });
-      } catch (error) {
-        console.warn(`Room lookup failed for field ${fieldName}:`, error);
-        if (isPermissionError(error)) {
-          hadPermissionError = true;
-        }
-      }
-    }
-  }
-
-  if (!results.size) {
-    try {
-      const fallbackSnapshot = await getDocsWithAuthRetry(query(collection(db, GUEST_DAILY_COLLECTION), limit(800)));
-      fallbackSnapshot.forEach((docSnap) => {
-        const data = { id: docSnap.id, ...docSnap.data() };
-        const docRoom = extractRoomNo(data);
-        if (docRoom && buildRoomVariants(docRoom).includes(roomNo)) {
-          if (!results.has(docSnap.id)) {
-            results.set(docSnap.id, data);
-          }
-        }
-      });
-    } catch (error) {
-      console.warn('Fallback guest_daily scan failed:', error);
-      if (isPermissionError(error)) {
-        hadPermissionError = true;
-      }
-    }
-  }
-
-  const docs = Array.from(results.values());
-  if (!docs.length) {
-    if (hadPermissionError) {
-      throw new Error('permission_denied_guest_daily');
+async function tryQuery(fieldName, value) {
+  try {
+    const q = query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', value), limit(1));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0];
+      return { id: doc.id, data: doc.data() };
     }
     return null;
+  } catch (error) {
+    if (isPermissionError(error)) throw error;
+    console.warn(`Query failed on ${fieldName}=${value}`, error);
+    return null;
   }
-
-  const bangkokToday = getBangkokDateKey();
-  const scored = docs
-    .map((doc) => ({ doc, score: getGuestDocScore(doc, bangkokToday) }))
-    .sort((a, b) => b.score - a.score);
-
-  return scored[0].doc;
-}
-
-function buildRoomVariants(roomNo) {
-  const normalized = normalizeRoomNo(roomNo);
-  const compact = normalized.replace(/\s+/g, '');
-  const withSpace = compact.replace(/^([ABCD])(\d+)$/, '$1 $2');
-  const noLeadingZeros = compact.replace(/^([ABCD])0+(\d+)$/, '$1$2');
-
-  return Array.from(new Set([
-    normalized,
-    compact,
-    compact.toLowerCase(),
-    withSpace,
-    noLeadingZeros,
-  ].filter(Boolean)));
-}
-
-function extractRoomNo(doc) {
-  return firstNonEmpty([
-    doc.room,
-    doc.room_no,
-    doc.roomNo,
-    doc.roomNormalized,
-    doc.roomNoNormalized,
-    doc.Room,
-  ]);
 }
 
 function buildGuestSessionPayload(roomNo, guestRecord) {
-  const guestName = firstNonEmpty([
-    guestRecord.guest_name,
-    guestRecord.guestName,
-    guestRecord.name,
-    guestRecord.fullName,
-  ]);
-
-  const packageName = firstNonEmpty([
-    guestRecord.package,
-    guestRecord.mealplan,
-    guestRecord.breakfastPackage,
-    guestRecord.breakfast_package,
-    guestRecord.specialPackage,
-    guestRecord.special_package,
-  ]);
-
-  const pax = guestRecord.pax ?? guestRecord.adults ?? guestRecord.guest_count ?? guestRecord.guestCount ?? null;
-  const businessDate = firstNonEmpty([
-    guestRecord.businessDate,
-    guestRecord.business_date,
-    guestRecord.dateKey,
-    guestRecord.date,
-  ]);
-
+  const data = guestRecord?.data || {};
   return {
     roomNo,
-    guestName: guestName || 'Guest',
-    packageName: packageName || '-',
-    pax: pax ?? '-',
-    breakfastEligible: guestRecord.eligible ?? guestRecord.breakfastEligible ?? null,
-    businessDate: businessDate || '',
-    sourceDocId: guestRecord.id || '',
-    sourceCollection: GUEST_DAILY_COLLECTION,
+    guestName: firstFilled(data.guest_name, data.guestName, data.name, data.fullName, ''),
+    packageName: firstFilled(data.package, data.breakfast_package, data.special_package, data.mealplan, '-'),
+    pax: Number(firstFilled(data.pax, data.adults, data.guest_count, 1)) || 1,
+    businessDate: firstFilled(data.business_date, data.businessDate, ''),
+    sourceDocId: guestRecord?.id || firstFilled(data.doc_id, ''),
     syncedAtISO: new Date().toISOString(),
-    loginMode: 'room_lookup_direct',
   };
 }
 
-function getGuestDocScore(doc, bangkokToday) {
-  let score = 0;
-
-  const businessDate = firstNonEmpty([
-    doc.businessDate,
-    doc.business_date,
-    doc.dateKey,
-    doc.date,
-  ]);
-
-  if (businessDate && String(businessDate).trim() === bangkokToday) {
-    score += 1000000000000;
-  }
-
-  const createdAt = toMillis(doc.createdAt) || toMillis(doc.updatedAt) || toMillis(doc.importedAt) || 0;
-  score += createdAt;
-
-  return score;
-}
-
-function toMillis(value) {
-  if (!value) return 0;
-  if (typeof value?.toMillis === 'function') return value.toMillis();
-  if (value instanceof Date) return value.getTime();
-  const parsed = Date.parse(value);
-  return Number.isNaN(parsed) ? 0 : parsed;
-}
-
-function firstNonEmpty(values) {
+function firstFilled(...values) {
   for (const value of values) {
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
-      return String(value).trim();
-    }
+    if (value !== undefined && value !== null && String(value).trim() !== '') return value;
   }
   return '';
 }
 
-function getBangkokDateKey() {
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Bangkok',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  return formatter.format(new Date());
-}
-
-async function runGuestDailyDebug(roomOverride = '') {
-  if (debugPanel) debugPanel.open = true;
-
-  if (roomOverride && typeof roomOverride === 'object' && 'preventDefault' in roomOverride) {
-    try { roomOverride.preventDefault(); } catch (_) {}
-    roomOverride = '';
-  }
-
-  const roomNo = normalizeRoomNo(roomOverride || roomNoInput.value);
-  const lines = [];
-  const push = (label, value) => lines.push(`${label}: ${typeof value === 'string' ? value : JSON.stringify(value, null, 2)}`);
-
-  push('เวลา', new Date().toISOString());
-  push('roomNoInput', roomNo || '(empty)');
-  push('firebaseReady', firebaseReady);
-  push('projectId', firebaseWebConfig?.projectId || '(missing)');
-  push('authDomain', firebaseWebConfig?.authDomain || '(missing)');
-  push('collection', GUEST_DAILY_COLLECTION);
-  push('roomVariants', buildRoomVariants(roomNo || ''));
-
-  if (!firebaseReady || !db || !auth) {
-    push('result', 'Firebase not ready');
-    debugOutput.textContent = lines.join("\n\n");
-    return;
-  }
-
-  try {
-    const user = await ensureAnonymousAuth(true);
-    push('authUid', user?.uid || '(none)');
-    push('authProvider', user?.isAnonymous ? 'anonymous' : 'other');
-    push('authCurrentUserReady', !!auth.currentUser);
-  } catch (error) {
-    push('authError', String(error?.message || error || 'unknown auth error'));
-    debugOutput.textContent = lines.join("\n\n");
-    return;
-  }
-
-  const roomFields = ['room', 'room_no', 'roomNo', 'roomNormalized', 'roomNoNormalized', 'Room'];
-  const exactHits = [];
-
-  for (const fieldName of roomFields) {
-    for (const variant of buildRoomVariants(roomNo || '')) {
-      try {
-        const snapshot = await getDocsWithAuthRetry(query(collection(db, GUEST_DAILY_COLLECTION), where(fieldName, '==', variant), limit(5)));
-        if (!snapshot.empty) {
-          snapshot.forEach((docSnap) => {
-            exactHits.push({
-              docId: docSnap.id,
-              fieldName,
-              variant,
-              roomExtracted: extractRoomNo(docSnap.data()),
-              guestName: firstNonEmpty([docSnap.data().guest_name, docSnap.data().guestName, docSnap.data().name, docSnap.data().fullName]),
-              packageName: firstNonEmpty([docSnap.data().package, docSnap.data().mealplan]),
-            });
-          });
-        }
-      } catch (error) {
-        push(`queryError ${fieldName}=${variant}`, String(error?.message || error || 'query error'));
-      }
-    }
-  }
-
-  push('exactHitCount', exactHits.length);
-  if (exactHits.length) {
-    push('exactHits', exactHits);
-  }
-
-  try {
-    const sampleSnapshot = await getDocsWithAuthRetry(query(collection(db, GUEST_DAILY_COLLECTION), limit(10)));
-    const samples = [];
-    sampleSnapshot.forEach((docSnap) => {
-      const data = docSnap.data() || {};
-      samples.push({
-        docId: docSnap.id,
-        room: extractRoomNo(data),
-        guestName: firstNonEmpty([data.guest_name, data.guestName, data.name, data.fullName]),
-        packageName: firstNonEmpty([data.package, data.mealplan]),
-        businessDate: firstNonEmpty([data.businessDate, data.business_date, data.dateKey, data.date]),
-        rawRoomFields: {
-          room: data.room ?? null,
-          room_no: data.room_no ?? null,
-          roomNo: data.roomNo ?? null,
-          roomNormalized: data.roomNormalized ?? null,
-          roomNoNormalized: data.roomNoNormalized ?? null,
-          Room: data.Room ?? null,
-        },
-      });
-    });
-
-    push('sampleCount', samples.length);
-    push('samples', samples);
-
-    if (roomNo && !exactHits.length) {
-      const normalizedTarget = normalizeRoomNo(roomNo);
-      const fuzzyHits = samples.filter((item) => buildRoomVariants(item.room || '').includes(normalizedTarget));
-      push('fuzzyHitsInSample', fuzzyHits);
-    }
-  } catch (error) {
-    push('sampleReadError', String(error?.message || error || 'sample read error'));
-  }
-
-  debugOutput.textContent = lines.join("\n\n");
-}
-
 function normalizeRoomNo(value) {
-  return String(value || '')
-    .trim()
-    .replace(/\s+/g, '')
-    .toUpperCase();
+  return String(value || '').toUpperCase().replace(/\s+/g, '').trim();
 }
 
-function isValidRoomNo(roomNo) {
-  return ROOM_PATTERN.test(roomNo);
+function buildRoomVariants(roomNo) {
+  const normalized = normalizeRoomNo(roomNo);
+  if (!normalized) return [];
+  const spaced = normalized.replace(/^([A-Z])(\d+)$/, '$1 $2');
+  return Array.from(new Set([normalized, normalized.toLowerCase(), spaced]));
 }
 
-function redirectToDepartmentsWithDelay() {
-  window.setTimeout(() => {
-    window.location.href = DEPARTMENTS_URL;
-  }, REDIRECT_DELAY_MS);
+function isValidRoomNo(value) {
+  return ROOM_PATTERN.test(normalizeRoomNo(value));
 }
 
-function showStatus(message, type) {
-  statusBox.textContent = message;
-  statusBox.classList.remove('hidden', 'success', 'error');
-  statusBox.classList.add(type === 'success' ? 'success' : 'error');
-}
-
-function setSubmitting(isSubmitting) {
+function setSubmitting(isSubmitting, message = 'กำลังประมวลผล...') {
   submitBtn.disabled = isSubmitting;
-  submitBtn.textContent = isSubmitting ? 'กำลังค้นหาข้อมูล...' : 'ค้นหาข้อมูลและเข้าสู่ระบบ';
+  submitBtn.textContent = isSubmitting ? 'กำลังค้นหา...' : 'ค้นหาข้อมูลและเข้าสู่ระบบ';
+  loadingOverlay.classList.toggle('hidden', !isSubmitting);
+  loadingOverlay.classList.toggle('active', isSubmitting);
+  if (isSubmitting) {
+    statusBox.classList.add('hidden');
+  }
+}
+
+function showStatus(message, type = 'success') {
+  statusBox.textContent = message;
+  statusBox.className = `status-box ${type}`;
 }
 
 function isPermissionError(error) {
   const code = String(error?.code || '');
-  const message = String(error?.message || error || '').toLowerCase();
-  return code === 'permission-denied' || message.includes('permission') || message.includes('missing or insufficient permissions');
+  const message = String(error?.message || '');
+  return code.includes('permission-denied') || /permission/i.test(message) || /insufficient/i.test(message);
 }
 
 function sleep(ms) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
