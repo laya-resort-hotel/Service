@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    match /guest_daily/{docId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /guest_portal_sessions/{docId} {
+      allow create: if signedIn();
+      allow read: if signedIn();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

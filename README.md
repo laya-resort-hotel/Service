@@ -1,24 +1,19 @@
-# LAYA Hotel Portal (IHN / Check-in Sync)
+# Laya Service Portal (MoringCard-ready)
 
-หน้าแรกของระบบให้แขกกรอกเลขห้องเพียงอย่างเดียว จากนั้นระบบจะอ่านข้อมูลจาก Firestore collection `guest_daily` ของระบบ Check-in / IHN แล้วพาไปหน้ารวมแผนก
+เวอร์ชันนี้ถูกปรับให้หน้า Service อ่านข้อมูลจาก Firebase โปรเจกต์เดียวกับ Checkin คือ **moringcard** โดยตรง
+และค้นหาห้องจาก collection `guest_daily` ทันที
 
-## สิ่งที่ต้องตั้งค่าก่อนใช้งานจริง
+## ต้องแก้ก่อนใช้งาน
+เปิดไฟล์ `frontend/shared/firebase-config.js` แล้วใส่ค่า Web Config ของโปรเจกต์ moringcard ให้ครบ
 
-1. ใส่ Firebase config เดียวกับระบบ Check-in ในไฟล์ `frontend/shared/firebase-config.js`
-2. เปิด Anonymous Auth ใน Firebase Authentication
-3. ให้ Firestore rules อนุญาตให้อ่าน collection `guest_daily` ได้สำหรับ anonymous user หรือ user ที่โรงแรมกำหนด
+## หลังจากใส่ config แล้ว
+1. เปิด Anonymous Auth ในโปรเจกต์ moringcard
+2. ตั้ง Firestore Rules ให้อ่าน `guest_daily` ได้สำหรับ user ที่ sign in แล้ว
+3. อัปไฟล์ทั้งหมดขึ้น GitHub Pages
 
-## Flow
+## Collection ที่หน้าเว็บจะใช้
+- อ่าน: `guest_daily`
+- บันทึก session/login log: `guest_portal_sessions`
 
-- Guest เปิดหน้าแรก
-- กรอกเลขห้อง เช่น `A203`
-- ระบบเช็ก format ห้อง
-- ระบบ sign in แบบ anonymous
-- ระบบค้นหาใน `guest_daily`
-- ถ้าพบข้อมูล จะดึงชื่อผู้เข้าพัก / package / pax มาเก็บเป็น session ฝั่ง browser
-- จากนั้น redirect ไปหน้า `departments/index.html`
-
-
-## Debug Mode
-- มีปุ่ม `Test guest_daily / Debug การค้นหา` บนหน้าแรก
-- ใช้สำหรับเช็กว่าอ่าน Firestore ได้ไหม, ใช้ project ไหน, และ sample room ใน `guest_daily` มีอะไรบ้าง
+## หมายเหตุ
+ถ้าไม่ใส่ Web Config ของ moringcard หน้าเว็บจะยังเชื่อม Firebase ไม่ได้

@@ -1,9 +1,9 @@
 export const firebaseWebConfig = {
-  apiKey: "AIzaSyDReH8ZE8BLdSSEKoxAL4nppZOd6kO00rA",
-  authDomain: "service-c93f2.firebaseapp.com",
-  projectId: "service-c93f2",
-  storageBucket: "service-c93f2.firebasestorage.app",
-  messagingSenderId: "1011741219243",
-  appId: "1:1011741219243:web:0bbaa94adcb97723efdaee",
-  measurementId: "G-L0X403JZ5N",
+  apiKey: "AIzaSyBV64yW94kMyrjw_BRvPyyFlCdK8KEsJQY",
+  authDomain: "moringcard.firebaseapp.com",
+  projectId: "moringcard",
+  storageBucket: "moringcard.firebasestorage.app",
+  messagingSenderId: "281984975461",
+  appId: "1:281984975461:web:12a393d64170ef37553c8c",
+  measurementId: "G-8K6WBZZEBG",
 };
